@@ -8,7 +8,6 @@
   <!-- Sentry Browser SDK with Tracing & Session Replay -->
   <script
     src="https://browser.sentry-cdn.com/8.48.0/bundle.tracing.replay.min.js"
-    integrity="sha384-sO9mKj8Xl+z6VfH8sF8OqI256lB1K8C+KzVf8oY/1O2N8Y1o/oOqg67e3mE3nQfL"
     crossorigin="anonymous"
   ></script>
 </head>
@@ -221,16 +220,16 @@
     const statusText = document.getElementById('sentry-status-text');
     const terminalLogs = document.getElementById('terminal-logs');
 
-    // Load saved DSN
-    const savedDsn = localStorage.getItem('sentry_quest_dsn');
+    // Load default or saved DSN
+    const DEFAULT_DSN = 'https://ac2d12854c736cd6c4a553f085098fcc@o4512089700302848.ingest.de.sentry.io/4512089760399440';
+    const savedDsn = localStorage.getItem('sentry_quest_dsn') || DEFAULT_DSN;
     const savedEnv = localStorage.getItem('sentry_quest_env') || 'development';
-    if (savedDsn) {
-      dsnInput.value = savedDsn;
-      envSelect.value = savedEnv;
-      connectSentry(savedDsn, savedEnv);
-    } else {
-      window.sentryManager.logToUI('warning', 'No Sentry DSN detected', 'Paste your project DSN from sentry.io into the top field to test live tracking.');
-    }
+
+    dsnInput.value = savedDsn;
+    envSelect.value = savedEnv;
+
+    // Auto-connect to Sentry immediately on load
+    connectSentry(savedDsn, savedEnv);
 
     function connectSentry(dsn, env) {
       const ok = window.sentryManager.init(dsn, env);

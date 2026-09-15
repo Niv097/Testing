@@ -3,9 +3,12 @@
  * Handles Sentry SDK initialization, configuration, breadcrumbs, context, and error dispatching.
  */
 
+const DEFAULT_SENTRY_DSN = 'https://ac2d12854c736cd6c4a553f085098fcc@o4512089700302848.ingest.de.sentry.io/4512089760399440';
+
 class SentryManager {
   constructor() {
-    this.dsn = localStorage.getItem('sentry_quest_dsn') || '';
+    this.defaultDsn = DEFAULT_SENTRY_DSN;
+    this.dsn = localStorage.getItem('sentry_quest_dsn') || this.defaultDsn;
     this.environment = localStorage.getItem('sentry_quest_env') || 'development';
     this.isInitialized = false;
     this.lastEventId = null;

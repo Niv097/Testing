@@ -1,122 +1,56 @@
-# ⚔️ Sentry Bug Quest: The Glitched Dungeon
+# 🏎️ Sentry Crash Racer: Highway Telemetry & Crash Lab
 
-An interactive retro-cyberpunk arcade RPG & error simulation lab designed to explore, understand, and master **Sentry** observability and error tracking in JavaScript.
+An action-packed highway car racing game where **every collision triggers real-time Sentry errors**, complete with telemetry breadcrumbs (speed, lane, nitro), user context, and crash dumps!
 
-![Sentry Testing](https://img.shields.io/badge/Sentry-Tested-362D59?logo=sentry&logoColor=white)
-![JavaScript](https://img.shields.io/badge/Language-JavaScript%20ES6+-F7DF1E?logo=javascript&logoColor=black)
+![Sentry Tested](https://img.shields.io/badge/Sentry-Tested-362D59?logo=sentry&logoColor=white)
+![JavaScript](https://img.shields.io/badge/Language-Vanilla%20JS%20ES6+-F7DF1E?logo=javascript&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
 
-## 📖 Overview
+## 🚗 Gameplay Overview
 
-When learning Sentry, you usually want to see real errors, breadcrumbs, tags, stack traces, and performance transactions without breaking production code.
+Drive your high-speed sports car down a 4-lane highway. Dodging traffic earns points and logs continuous driving telemetry into Sentry. Slamming into obstacles triggers real JavaScript crashes and dispatches them straight to your **Sentry.io** dashboard.
 
-**Sentry Bug Quest** gives you:
-1. **A Playable Dungeon RPG**: Move your hero (🧙‍♂️) through the dungeon. Every step, potion drunk, and chest opened logs realistic **Sentry Breadcrumbs** and **User Context**.
-2. **Intentional In-Game Anomalies**: Interact with cursed chests, altars, shields, and monsters to trigger specific, real-world JavaScript exceptions.
-3. **The Sentry Chaos Control Panel**: Direct 1-click trigger buttons to fire errors, test performance lag spikes, dispatch custom severity levels (`info`, `warning`, `fatal`), and open Sentry's **User Feedback Dialog** (`showReportDialog`).
-4. **Live In-Game Event Terminal**: See the exact events, error messages, and Sentry event IDs dispatched in real time.
-
----
-
-## 🚀 Quick Start
-
-### Option 1: Open Directly in Browser
-Simply double-click `index.html` or right-click and open in Chrome, Firefox, Edge, or Safari.
-
-### Option 2: Run with a Local Web Server
-If you prefer running via a local server:
-
-**Using Python:**
-```bash
-python -m http.server 8080
-```
-Then open: [http://localhost:8080](http://localhost:8080)
-
-**Using Node (`npx serve`):**
-```bash
-npx serve .
-```
+- **Cruise Speed**: 110 - 150 km/h
+- **Gas**: Up to 210 km/h
+- **Nitro Boost**: 270 km/h with cyan exhaust flames!
+- **Audio**: Built-in engine hum, tire screech, and explosive crash sound effects powered by Web Audio API.
 
 ---
 
-## 🔑 How to Connect Your Sentry Account
+## 💥 Crash Anomalies & Sentry Errors
 
-1. Go to [sentry.io](https://sentry.io) and log in (or create a free developer account).
-2. Create a new project:
-   - Platform: **Browser JavaScript**
-   - Project Name: `sentry-bug-quest` (or any name you choose)
-3. Copy your project's **DSN** (looks like `https://abc123xyz@o123456.ingest.us.sentry.io/7890123`).
-4. Paste your DSN into the input bar at the top of the game and click **⚡ Connect Sentry**.
-5. Your DSN is automatically saved in `localStorage`, so you don't have to re-enter it on page refreshes!
-
----
-
-## 🧪 What Errors Can You Test?
-
-| Anomaly / Anomaly Object | Error Type | Sentry Concept Tested |
+| Obstacle | Sentry Error Triggered | Telemetry & Details Sent |
 | :--- | :--- | :--- |
-| 📦 **Cursed Chest of Null** | `TypeError` | Uncaught exception: reading properties of `null`/`undefined`. Shows full stack trace. |
-| 🔮 **Forbidden Void Altar** | `ReferenceError` | Invoking an undeclared function (`invokeNonExistentDragon()`). |
-| 🛡️ **Looping Mirror Shield** | `RangeError` | Infinite recursion leading to `Maximum call stack size exceeded`. |
-| 💾 **Corrupt Save Crystal** | `PromiseRejection` | Unhandled asynchronous Promise rejection (`onunhandledrejection`). |
-| 🧌 **Dark Web 404 Goblin** | `Network / Fetch Error` | Failed HTTP API request (`404 Not Found`). Tests network error tracking. |
-| 👑 **Chrono Freeze Overlord** | `Slow Transaction` | 1.2s synchronous thread block testing Sentry Performance & slow frame spikes. |
-| 🧪 **Healing Flask / Gold** | *Normal Action* | Generates breadcrumbs (`inventory.consume`, `inventory.gold`) leading up to errors. |
-| 📢 **Custom Message Buttons** | `captureMessage` | Tests severity levels: `info`, `warning`, `fatal`. |
-| 💬 **Crash Feedback Modal** | `showReportDialog` | Opens Sentry's native User Feedback modal to collect user comments. |
+| 🚛 **Freight Truck** | `TypeError` | `Cannot read properties of undefined (reading 'chassisPhysics')`. |
+| 🚧 **Concrete Guardrail** | `ReferenceError` | `guardrailCollisionMesh is not defined`. |
+| 🌀 **Oil Slick Vortex** | `RangeError` | `Maximum call stack size exceeded in calculateSpinDynamics()`. |
+| 🔥 **Nitro Crash (>200 km/h)** | `Fatal Crash Alert` | Extreme G-force disintegration event (`level: fatal`). |
+
+### 🍞 Telemetry Breadcrumbs
+Before every crash, Sentry records your vehicle's telemetry trail:
+1. `[driving.steer] Player steered to Lane 3 at 145 km/h`
+2. `[engine.nitro] Nitro Engaged! Speed boosting towards 260 km/h`
+3. `[telemetry] Speedometer: 245 km/h | Dist: 820m | Lane: 3`
+4. `[collision] CRASH: Slammed into Freight Truck at 245 km/h!`
 
 ---
 
-## 🕵️ How to Analyze Errors in the Sentry Dashboard
+## 🚀 How to Run
 
-Once an error is triggered, go to your Sentry dashboard and explore:
-
-### 1. **Issues Tab**
-- Click into the issue (e.g. `TypeError: Cannot read properties of null`).
-- Observe the **Stack Trace** showing the exact file (`sentry-manager.js`) and line number.
-- Check the **Tags**: `character.class`, `dungeon.level`, `game.version`, `browser`, `os`.
-
-### 2. **Breadcrumbs**
-- Scroll down to the **Breadcrumbs** section of the issue.
-- Notice how Sentry logged your hero's steps, room navigation, items used, and chests opened right before the crash occurred.
-
-### 3. **User Context**
-- View the **User** section:
-  - User ID: `hero_player_xxx`
-  - Username: `GlitchKnight`
-  - Email: `hero@bugquest.game`
-
-### 4. **Session Replay (If Enabled)**
-- Watch a video-like reconstruction of your clicks, movements, and the exact moment the error occurred.
+1. Open **[index.html](index.html)** in any web browser.
+2. The game is already linked to your Sentry project (`sentry-bug-quest`).
+3. Steer with **A / D** or **Arrow Keys**, accelerate with **W**, and hit **Space** for Nitro.
+4. Crash your car into any truck or barrier, and open your [sentry.io](https://sentry.io) dashboard to see the crash event live!
 
 ---
 
-## 🎮 Game Controls
+## 🎮 Controls
 
-- **Movement**: Arrow Keys or **W, A, S, D** (or on-screen D-pad)
-- **Interact / Attack**: **Space**, **E**, or **Enter** (or the **ACTION** button)
-- **Clear Logs**: Click `Clear Terminal` in the bottom bar to reset the on-screen console.
-
----
-
-## 📁 Repository Structure
-
-```
-.
-├── index.html          # Main application page & Chaos Control Lab
-├── style.css           # Retro cyberpunk styling, HUD, and responsive layout
-├── game.js             # Canvas RPG game engine, audio synthesis, entities
-├── sentry-manager.js   # Sentry SDK wrapper, DSN persistence, error triggers
-├── .gitignore          # Git ignore rules
-└── README.md           # Documentation & Sentry guide
-```
-
----
-
-## 🛠️ Built With
-
-- **HTML5 Canvas & Web Audio API** (Zero external game asset dependencies)
-- **@sentry/browser** (Official Sentry JavaScript SDK with Tracing & Replay)
-- **Vanilla Modern JavaScript (ES6+)**
+- **Steer Left**: `A` or `Left Arrow` (or on-screen button)
+- **Steer Right**: `D` or `Right Arrow` (or on-screen button)
+- **Gas / Accelerate**: `W` or `Up Arrow`
+- **Brake**: `S` or `Down Arrow`
+- **Nitro Boost**: `Space` or `Shift`
+- **Respawn After Crash**: `Space` or `Enter` (or click Respawn)

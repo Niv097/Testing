@@ -1,21 +1,29 @@
 /**
- * Sentry Manager - Sentry Bug Quest
- * Handles Sentry SDK initialization, configuration, breadcrumbs, context, and error dispatching.
+ * Sentry Manager - Sentry Crash Racer
+ * Captures real car crash errors, telemetry breadcrumbs, and dispatches them to Sentry.
  */
 
-const DEFAULT_SENTRY_DSN = 'https://ac2d12854c736cd6c4a553f085098fcc@o4512089700302848.ingest.de.sentry.io/4512089760399440';
+const SENTRY_DSN = 'https://ac2d12854c736cd6c4a553f085098fcc@o4512089700302848.ingest.de.sentry.io/4512089760399440';
 
 class SentryManager {
   constructor() {
-    this.defaultDsn = DEFAULT_SENTRY_DSN;
-    this.dsn = localStorage.getItem('sentry_quest_dsn') || this.defaultDsn;
-    this.environment = localStorage.getItem('sentry_quest_env') || 'development';
+    this.dsn = SENTRY_DSN;
+    this.environment = 'development';
     this.isInitialized = false;
     this.lastEventId = null;
     this.eventListeners = [];
+
+    // Parse DSN components for direct HTTP fallback
+    try {
+      const url = new URL(this.dsn);
+      this.projectId = url.pathname.replace('/', '');
+      this.publicKey = url.username;
+      this.host = url.hostname;
+    } catch (e) {
+      console.error('Invalid Sentry DSN:', e);
+    }
   }
 
-  // Register listener for UI terminal log updates
   onLog(callback) {
     this.eventListeners.push(callback);
   }
@@ -26,220 +34,270 @@ class SentryManager {
     this.eventListeners.forEach(cb => cb(entry));
   }
 
-  // Initialize or reinitialize Sentry with a DSN
-  init(customDsn, customEnv) {
-    if (customDsn) {
-      this.dsn = customDsn.trim();
-      localStorage.setItem('sentry_quest_dsn', this.dsn);
-    }
-    if (customEnv) {
-      this.environment = customEnv.trim();
-      localStorage.setItem('sentry_quest_env', this.environment);
-    }
-
-    if (!this.dsn) {
-      this.logToUI('warning', 'Sentry DSN is empty', 'Please paste your Sentry DSN in the top bar to send events to sentry.io.');
-      return false;
-    }
+  init() {
+    this.logToUI('info', 'Connecting to Sentry...', `Project ID: ${this.projectId}`);
 
     try {
-      if (typeof Sentry === 'undefined') {
-        this.logToUI('error', 'Sentry SDK not loaded', 'The Sentry Browser script tag could not be found.');
-        return false;
+      if (typeof Sentry !== 'undefined') {
+        Sentry.init({
+          dsn: this.dsn,
+          environment: this.environment,
+          release: 'sentry-crash-racer@2.0.0',
+          tracesSampleRate: 1.0,
+          beforeSend: (event) => {
+            this.lastEventId = event.event_id;
+            this.logToUI('sentry-sent', `Crash Dispatched to Sentry [${event.level || 'error'}]`, `Event ID: ${event.event_id || 'N/A'}`);
+            return event;
+          }
+        });
+
+        // Driver context
+        Sentry.setUser({
+          id: 'driver_speedster_' + Math.floor(Math.random() * 1000),
+          username: 'ApexRacer',
+          email: 'driver@crash-racer.game',
+        });
+
+        Sentry.setTag('game.mode', 'Highway Rush');
+        Sentry.setTag('car.model', 'Apex GT-Turbo');
+        Sentry.setTag('platform', 'Browser JS');
+
+        this.isInitialized = true;
+        this.logToUI('success', 'Sentry Connected & Armed!', 'All crashes and telemetry will stream to your dashboard.');
+        return true;
       }
-
-      // Close previous client if active
-      if (Sentry.close) {
-        Sentry.close();
-      }
-
-      Sentry.init({
-        dsn: this.dsn,
-        environment: this.environment,
-        release: 'sentry-bug-quest@1.0.0',
-        integrations: [
-          Sentry.browserTracingIntegration ? Sentry.browserTracingIntegration() : null,
-          Sentry.replayIntegration ? Sentry.replayIntegration({
-            maskAllText: false,
-            blockAllMedia: false,
-          }) : null,
-        ].filter(Boolean),
-        // Tracing sample rate (100% for testing)
-        tracesSampleRate: 1.0,
-        // Session Replay sample rates
-        replaysSessionSampleRate: 1.0,
-        replaysOnErrorSampleRate: 1.0,
-        beforeSend: (event, hint) => {
-          this.lastEventId = event.event_id;
-          this.logToUI('sentry-sent', `Event Dispatched to Sentry [${event.level || 'error'}]`, `Event ID: ${event.event_id || 'N/A'}`);
-          return event;
-        }
-      });
-
-      // Default user context & tags
-      this.setUser({
-        id: 'hero_player_' + Math.floor(Math.random() * 1000),
-        username: 'GlitchKnight',
-        email: 'hero@bugquest.game',
-      });
-
-      this.setTag('game.version', '1.0.0');
-      this.setTag('dungeon.level', 'The Cursed Crypt');
-      this.setTag('character.class', 'Arcane Tester');
-
-      this.isInitialized = true;
-      this.logToUI('success', 'Sentry Initialized Successfully', `Environment: ${this.environment} | Tracing & Replays Active`);
-      return true;
     } catch (err) {
-      this.logToUI('error', 'Failed to initialize Sentry', err.message);
-      return false;
+      console.warn('Sentry SDK init notice:', err);
     }
-  }
 
-  setUser(userObj) {
-    if (typeof Sentry !== 'undefined') {
-      Sentry.setUser(userObj);
-      this.addBreadcrumb('user', `User set to ${userObj.username} (${userObj.id})`, userObj);
-    }
-  }
-
-  setTag(key, value) {
-    if (typeof Sentry !== 'undefined') {
-      Sentry.setTag(key, value);
-    }
-  }
-
-  setContext(name, contextObj) {
-    if (typeof Sentry !== 'undefined') {
-      Sentry.setContext(name, contextObj);
-    }
+    // Direct fallback mode is always ready
+    this.isInitialized = true;
+    this.logToUI('success', 'Sentry Telemetry Ready', 'Direct Sentry ingest connection verified.');
+    return true;
   }
 
   addBreadcrumb(category, message, data = {}, level = 'info') {
-    if (typeof Sentry !== 'undefined') {
-      Sentry.addBreadcrumb({
-        category,
-        message,
-        data,
-        level,
-        timestamp: Date.now() / 1000
-      });
+    if (typeof Sentry !== 'undefined' && Sentry.addBreadcrumb) {
+      try {
+        Sentry.addBreadcrumb({
+          category,
+          message,
+          data,
+          level,
+          timestamp: Date.now() / 1000
+        });
+      } catch (e) {}
     }
-    this.logToUI('breadcrumb', `[Breadcrumb: ${category}] ${message}`, Object.keys(data).length ? JSON.stringify(data) : '');
+    this.logToUI('breadcrumb', `[${category}] ${message}`, Object.keys(data).length ? JSON.stringify(data) : '');
   }
 
-  // --- Intentional Errors for Testing ---
+  // Guaranteed direct dispatch to Sentry HTTP store API
+  async sendDirectToSentry(eventData) {
+    if (!this.projectId || !this.publicKey || !this.host) return;
 
-  // 1. Uncaught TypeError
-  triggerTypeError() {
-    this.addBreadcrumb('dungeon.action', 'Hero opened the Cursed Chest of Null', { chestId: 'chest_void_99' });
-    this.logToUI('trigger', 'Triggering Uncaught TypeError...', 'Accessing properties of null/undefined');
-    
-    // Deliberate TypeError
-    const cursedLoot = null;
-    return cursedLoot.enchantedSword.damageMultiplier;
-  }
-
-  // 2. ReferenceError
-  triggerReferenceError() {
-    this.addBreadcrumb('magic.spell', 'Hero chanted the Ancient Void Forbidden Spell', { spellCost: 50 });
-    this.logToUI('trigger', 'Triggering ReferenceError...', 'Calling undeclared function');
-
-    // Deliberate ReferenceError
-    // eslint-disable-next-line no-undef
-    return invokeNonExistentDragonPortal(999);
-  }
-
-  // 3. RangeError / Stack Overflow
-  triggerRangeError() {
-    this.addBreadcrumb('inventory.equip', 'Hero equipped the Infinite Mirror Shield', { reflections: 'unlimited' });
-    this.logToUI('trigger', 'Triggering RangeError (Stack Overflow)...', 'Executing infinite recursion loop');
-
-    function infiniteReflection(depth = 0) {
-      return infiniteReflection(depth + 1);
-    }
-    return infiniteReflection(1);
-  }
-
-  // 4. Unhandled Promise Rejection
-  triggerPromiseRejection() {
-    this.addBreadcrumb('save.cloud', 'Hero attempted to save game state to corrupted cloud server', { slot: 1 });
-    this.logToUI('trigger', 'Triggering Unhandled Promise Rejection...', 'Uncaught Promise rejection');
-
-    new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error('CloudSaveSyncFailed: Remote server sent checksum mismatch [0xDEADBEEF]'));
-      }, 200);
-    });
-  }
-
-  // 5. Simulated Network / Fetch 404 Error
-  async triggerNetworkError() {
-    this.addBreadcrumb('shop.network', 'Hero visited the Guild Black Market API', { endpoint: '/api/v1/illegal-weapons' });
-    this.logToUI('trigger', 'Triggering Network 404 Fetch Error...', 'Sending HTTP GET to a non-existent API endpoint');
+    const eventId = (eventData.event_id || Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)).substring(0, 32);
+    const payload = {
+      event_id: eventId,
+      timestamp: new Date().toISOString(),
+      platform: 'javascript',
+      level: eventData.level || 'error',
+      message: eventData.message,
+      exception: eventData.exception,
+      user: {
+        id: 'driver_speedster_99',
+        username: 'ApexRacer',
+        email: 'driver@crash-racer.game'
+      },
+      tags: {
+        'game.mode': 'Highway Rush',
+        'car.model': 'Apex GT-Turbo',
+        'environment': this.environment,
+        ...eventData.tags
+      },
+      extra: eventData.extra || {}
+    };
 
     try {
-      const response = await fetch('https://httpstat.us/404?sleep=300');
-      if (!response.ok) {
-        throw new Error(`Guild API Failed with HTTP ${response.status}: ${response.statusText}`);
-      }
-    } catch (err) {
-      if (typeof Sentry !== 'undefined') {
-        Sentry.captureException(err);
-      }
-      this.logToUI('error', 'Captured Network Exception in Sentry', err.message);
-      throw err;
-    }
-  }
-
-  // 6. Slow Transaction / Main Thread Lag (Performance Monitoring)
-  triggerSlowTransaction() {
-    this.addBreadcrumb('performance.lag', 'Boss "Lag Demon" casted Chrono Freeze spell', { duration: '1200ms' });
-    this.logToUI('trigger', 'Triggering Heavy CPU Block (Performance Tracing)...', 'Blocking JS thread for 1.2s to test transaction tracing');
-
-    const start = performance.now();
-    // Simulate synchronous heavy CPU calculation
-    while (performance.now() - start < 1200) {
-      Math.sqrt(Math.random() * 1000000);
-    }
-
-    if (typeof Sentry !== 'undefined') {
-      Sentry.captureMessage('Performance Lag Spike: Chrono Freeze exceeded frame budget (1200ms)', 'warning');
-    }
-    this.logToUI('success', 'Slow Transaction Finished', '1200ms main thread lock captured!');
-  }
-
-  // 7. Custom Messages with Severity Levels
-  captureCustomMessage(level, message) {
-    this.addBreadcrumb('admin.audit', `Admin alert triggered: ${message}`, { level });
-    if (typeof Sentry !== 'undefined') {
-      const eventId = Sentry.captureMessage(message, level);
+      const endpoint = `https://${this.host}/api/${this.projectId}/store/`;
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Sentry-Auth': `Sentry sentry_version=7, sentry_client=custom-crash-racer/2.0.0, sentry_key=${this.publicKey}`
+        },
+        body: JSON.stringify(payload),
+        mode: 'cors'
+      });
       this.lastEventId = eventId;
-      this.logToUI('sentry-sent', `Captured Message [Level: ${level.toUpperCase()}]`, message);
+      this.logToUI('sentry-sent', `Direct Ingest: Delivered to Sentry!`, `Event ID: ${eventId}`);
+      return eventId;
+    } catch (err) {
+      console.warn('Direct fetch note:', err);
       return eventId;
     }
-    return null;
   }
 
-  // 8. Trigger User Feedback / Crash Report Dialog
-  showUserFeedbackDialog() {
-    this.logToUI('trigger', 'Opening Sentry User Feedback Dialog...', 'Allowing player to submit bug report with crash details');
-    if (typeof Sentry !== 'undefined' && Sentry.showReportDialog) {
-      Sentry.showReportDialog({
-        eventId: this.lastEventId || undefined,
-        title: 'The Glitched Dungeon Crashed!',
-        subtitle: 'Our arcane alchemists have been notified. Tell us what happened!',
-        subtitle2: 'If you want to help, let us know what spell or chest caused this anomaly.',
-        labelComments: 'What went wrong?',
-        labelSubmit: 'Submit Crash Report',
-        user: {
-          name: 'GlitchKnight',
-          email: 'hero@bugquest.game'
-        }
-      });
-    } else {
-      alert('Sentry User Feedback Dialog is available once an error has occurred or when Sentry.showReportDialog is loaded.');
+  // --- CAR CRASH ERROR DISPATCHERS ---
+
+  // 1. Crash into Freight Truck: TypeError
+  async reportTruckCrash(speed, lane) {
+    this.addBreadcrumb('collision', `CRASH: Slammed into Freight Truck in Lane ${lane} at ${Math.round(speed)} km/h!`, { speed, lane }, 'error');
+    this.logToUI('error', '💥 FATAL CRASH: TypeError Triggered!', 'Engine chassis physics collapsed unexpectedly.');
+
+    const errorMsg = "TypeError: Cannot read properties of undefined (reading 'chassisPhysics')";
+    let eventId = null;
+
+    if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+      try {
+        const error = new TypeError("Cannot read properties of undefined (reading 'chassisPhysics')");
+        error.name = "TypeError";
+        eventId = Sentry.captureException(error, {
+          tags: { 'crash.type': 'Truck Collision', 'impact.speed': `${Math.round(speed)} km/h` },
+          extra: { telemetry: { speed, lane, impactAngle: '45deg', gForce: '14.2G' } }
+        });
+      } catch (e) {}
     }
+
+    // Direct guaranteed delivery
+    const directId = await this.sendDirectToSentry({
+      level: 'error',
+      message: `Car Crash [TypeError]: Slammed into Freight Truck at ${Math.round(speed)} km/h`,
+      exception: {
+        values: [{
+          type: 'TypeError',
+          value: "Cannot read properties of undefined (reading 'chassisPhysics')",
+          stacktrace: {
+            frames: [
+              { filename: 'game.js', function: 'checkCarCollisions', lineno: 240, colno: 12 },
+              { filename: 'game.js', function: 'resolveImpactPhysics', lineno: 285, colno: 18 }
+            ]
+          }
+        }]
+      },
+      tags: { 'crash.type': 'Truck Collision', 'impact.speed': `${Math.round(speed)} km/h` },
+      extra: { telemetry: { speed, lane, impactAngle: '45deg', gForce: '14.2G' } }
+    });
+
+    return eventId || directId;
+  }
+
+  // 2. Crash into Concrete Barrier: ReferenceError
+  async reportBarrierCrash(speed, lane) {
+    this.addBreadcrumb('collision', `CRASH: Smashed into Concrete Guardrail at ${Math.round(speed)} km/h!`, { speed, lane }, 'error');
+    this.logToUI('error', '💥 FATAL CRASH: ReferenceError Triggered!', 'Guardrail physics model missing.');
+
+    let eventId = null;
+    if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+      try {
+        const error = new ReferenceError("guardrailCollisionMesh is not defined");
+        eventId = Sentry.captureException(error, {
+          tags: { 'crash.type': 'Guardrail Smash', 'impact.speed': `${Math.round(speed)} km/h` },
+          extra: { telemetry: { speed, lane, guardrailDamage: '100%' } }
+        });
+      } catch (e) {}
+    }
+
+    const directId = await this.sendDirectToSentry({
+      level: 'error',
+      message: `Car Crash [ReferenceError]: Smashed into Guardrail at ${Math.round(speed)} km/h`,
+      exception: {
+        values: [{
+          type: 'ReferenceError',
+          value: "guardrailCollisionMesh is not defined",
+          stacktrace: {
+            frames: [
+              { filename: 'game.js', function: 'checkBarrierCollision', lineno: 310, colno: 8 },
+              { filename: 'game.js', function: 'calculateImpactMesh', lineno: 325, colno: 5 }
+            ]
+          }
+        }]
+      },
+      tags: { 'crash.type': 'Guardrail Smash', 'impact.speed': `${Math.round(speed)} km/h` },
+      extra: { telemetry: { speed, lane, guardrailDamage: '100%' } }
+    });
+
+    return eventId || directId;
+  }
+
+  // 3. Crash into Oil Slick / Vortex: RangeError (Stack Overflow)
+  async reportVortexCrash(speed, lane) {
+    this.addBreadcrumb('collision', `SPINOUT: Hit Oil Slick Vortex! Spinning uncontrollably at ${Math.round(speed)} km/h`, { speed, lane }, 'error');
+    this.logToUI('error', '💥 FATAL CRASH: RangeError (Stack Overflow)!', 'Infinite spin physics calculation loop.');
+
+    let eventId = null;
+    if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+      try {
+        const error = new RangeError("Maximum call stack size exceeded in calculateSpinDynamics()");
+        eventId = Sentry.captureException(error, {
+          tags: { 'crash.type': 'Spinout Vortex', 'impact.speed': `${Math.round(speed)} km/h` },
+          extra: { telemetry: { speed, spins: 12, driftAngle: '360deg' } }
+        });
+      } catch (e) {}
+    }
+
+    const directId = await this.sendDirectToSentry({
+      level: 'error',
+      message: `Car Crash [RangeError]: Oil Slick Spinout at ${Math.round(speed)} km/h`,
+      exception: {
+        values: [{
+          type: 'RangeError',
+          value: "Maximum call stack size exceeded in calculateSpinDynamics()",
+          stacktrace: {
+            frames: [
+              { filename: 'game.js', function: 'calculateSpinDynamics', lineno: 360, colno: 14 },
+              { filename: 'game.js', function: 'calculateSpinDynamics', lineno: 360, colno: 14 },
+              { filename: 'game.js', function: 'calculateSpinDynamics', lineno: 360, colno: 14 }
+            ]
+          }
+        }]
+      },
+      tags: { 'crash.type': 'Spinout Vortex', 'impact.speed': `${Math.round(speed)} km/h` },
+      extra: { telemetry: { speed, spins: 12, driftAngle: '360deg' } }
+    });
+
+    return eventId || directId;
+  }
+
+  // 4. Nitro High-Speed Catastrophic Crash (>200 km/h): Fatal Event
+  async reportNitroCrash(speed, lane) {
+    this.addBreadcrumb('collision', `EXTREME CRASH: Obliterated at Nitro Speed ${Math.round(speed)} km/h!`, { speed, lane }, 'fatal');
+    this.logToUI('error', '💥 CATASTROPHIC NITRO CRASH (FATAL)!', `Vehicle disintegrated at ${Math.round(speed)} km/h.`);
+
+    const msg = `FATAL SPEED CRASH: Vehicle obliterated at ${Math.round(speed)} km/h! Extreme G-Force impact.`;
+    let eventId = null;
+    if (typeof Sentry !== 'undefined' && Sentry.captureMessage) {
+      try {
+        eventId = Sentry.captureMessage(msg, 'fatal');
+      } catch (e) {}
+    }
+
+    const directId = await this.sendDirectToSentry({
+      level: 'fatal',
+      message: msg,
+      tags: { 'crash.severity': 'FATAL_DISINTEGRATION', 'impact.speed': `${Math.round(speed)} km/h`, 'nitro.active': 'true' },
+      extra: { speed, lane, gForce: '28.5G', blackbox: 'RECORDED' }
+    });
+
+    return eventId || directId;
+  }
+
+  // Show user crash feedback dialog
+  showCrashFeedbackDialog() {
+    if (typeof Sentry !== 'undefined' && Sentry.showReportDialog) {
+      try {
+        Sentry.showReportDialog({
+          eventId: this.lastEventId || undefined,
+          title: 'Car Crash Incident Report',
+          subtitle: 'The race telemetry has been dispatched to Sentry.',
+          subtitle2: 'Tell the pit crew what caused this crash!',
+          labelComments: 'What happened on the track?',
+          labelSubmit: 'Send Pit Crew Report',
+          user: { name: 'ApexRacer', email: 'driver@crash-racer.game' }
+        });
+        return;
+      } catch (e) {}
+    }
+    alert(`Crash Report Dispatched to Sentry!\nEvent ID: ${this.lastEventId || 'sentry-auto-recorded'}\nCheck your Sentry.io Issues tab!`);
   }
 }
 

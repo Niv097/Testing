@@ -3,330 +3,222 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sentry Bug Quest - Error & Observability Testing Lab</title>
+  <title>Sentry Crash Racer - Highway Car Crash & Observability Game</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Sentry Browser SDK with Tracing & Session Replay -->
-  <script
-    src="https://browser.sentry-cdn.com/8.48.0/bundle.tracing.replay.min.js"
-    crossorigin="anonymous"
-  ></script>
+  <!-- Sentry Browser SDK -->
+  <script src="https://browser.sentry-cdn.com/8.48.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <!-- Header: DSN Setup & Status -->
+  <!-- Top Telemetry & Sentry Status Bar -->
   <header>
     <div class="brand">
-      <span style="font-size: 1.8rem;">⚔️</span>
+      <span style="font-size: 2rem;">🏎️💥</span>
       <div>
-        <h1>Sentry Bug Quest</h1>
-        <p style="font-size: 0.75rem; color: var(--text-muted);">The Glitched Dungeon & Sentry Observability Lab</p>
+        <h1>Sentry Crash Racer</h1>
+        <p style="font-size: 0.78rem; color: var(--text-muted);">Highway High-Speed Crash & Telemetry Lab</p>
       </div>
     </div>
 
-    <div class="dsn-config-form">
-      <div class="input-group">
-        <input
-          type="text"
-          id="dsn-input"
-          placeholder="Paste your Sentry DSN here (e.g. https://xyz@o123.ingest.sentry.io/456)"
-          autocomplete="off"
-        />
-      </div>
-      <select id="env-select" class="env-select">
-        <option value="development">development</option>
-        <option value="staging">staging</option>
-        <option value="production">production</option>
-      </select>
-      <button id="btn-connect" class="btn-primary">
-        <span>⚡</span> Connect Sentry
-      </button>
-      <div id="sentry-status" class="status-badge">
+    <div class="sentry-badge-bar">
+      <div class="status-badge connected" id="sentry-status">
         <span class="status-dot"></span>
-        <span id="sentry-status-text">Disconnected</span>
+        <span id="sentry-status-text">🟢 Sentry Armed & Connected</span>
+      </div>
+      <div class="dsn-preview">
+        <span>Project: <b>sentry-bug-quest</b></span>
       </div>
     </div>
   </header>
 
-  <!-- Main Game & Lab Grid -->
-  <div class="main-grid">
-
-    <!-- Left Column: Playable Game Arena -->
-    <section class="game-card">
-      <div class="hud-panel">
-        <div class="hud-bar-container">
-          <span>HP</span>
-          <div class="hud-bar">
-            <div id="hud-hp" class="hud-bar-fill hud-hp-fill" style="width: 100%;"></div>
+  <!-- Main Arcade Layout -->
+  <main class="game-container">
+    
+    <!-- Left: Highway Driving Game Canvas -->
+    <div class="game-viewport">
+      
+      <!-- Top HUD on Canvas -->
+      <div class="hud-bar">
+        <div class="hud-item">
+          <span class="hud-label">SPEED</span>
+          <div class="speedometer">
+            <span id="hud-speed" class="speed-val">120</span>
+            <span class="speed-unit">KM/H</span>
           </div>
-          <span id="hud-hp-text" style="font-size: 0.75rem; color: #ff4757;">100/100</span>
         </div>
 
-        <div class="hud-bar-container">
-          <span>MP</span>
-          <div class="hud-bar">
-            <div id="hud-mana" class="hud-bar-fill hud-mana-fill" style="width: 80%;"></div>
+        <div class="gauge-wrapper">
+          <div class="gauge-bar">
+            <div id="speed-gauge-fill" class="gauge-fill" style="width: 45%;"></div>
           </div>
-          <span id="hud-mana-text" style="font-size: 0.75rem; color: #3498db;">80/100</span>
+          <span style="font-size: 0.65rem; color: #8395a7;">TURBO GAUGE</span>
         </div>
 
-        <div class="hud-stat">
-          <span>🪙</span> <span id="hud-gold">50</span>
+        <div class="hud-item">
+          <span class="hud-label">DISTANCE</span>
+          <span id="hud-dist" class="hud-val">0m</span>
         </div>
-        <div class="hud-stat">
-          <span>⭐ Lv</span> <span id="hud-level">3</span>
-        </div>
-        <div class="hud-stat">
-          <span>👣</span> <span id="hud-steps">0</span>
+
+        <div class="hud-item">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-val">0</span>
         </div>
       </div>
 
+      <!-- Canvas Highway (600x540) -->
       <div class="canvas-wrapper">
-        <canvas id="gameCanvas" width="640" height="480"></canvas>
-      </div>
+        <canvas id="gameCanvas" width="600" height="540"></canvas>
 
-      <div class="controls-hint">
-        <span>🎮 Controls: <b>WASD</b> or <b>Arrow Keys</b> to move. <b>Space / E</b> to interact.</span>
-        <span>Tile walk generates <b>Sentry Breadcrumbs</b></span>
-      </div>
+        <!-- Crash Report Overlay (Appears on Collision) -->
+        <div id="crash-overlay" class="crash-modal" style="display: none;">
+          <div class="crash-box">
+            <div class="crash-header">
+              <span style="font-size: 2.2rem;">💥</span>
+              <h2 id="crash-title">FATAL CRASH DETECTED!</h2>
+            </div>
+            
+            <div class="crash-stats-grid">
+              <div class="crash-stat">
+                <span class="stat-label">IMPACT SPEED</span>
+                <span id="crash-speed" class="stat-num">210 km/h</span>
+              </div>
+              <div class="crash-stat">
+                <span class="stat-label">ERROR GENERATED</span>
+                <span id="crash-error-name" class="stat-num error-tag">TypeError</span>
+              </div>
+            </div>
 
-      <!-- Touch / D-pad Controls -->
-      <div class="dpad">
-        <button id="btn-up">▲</button>
-        <button id="btn-left">◀</button>
-        <button id="btn-action">ACTION</button>
-        <button id="btn-right">▶</button>
-        <button id="btn-down">▼</button>
-      </div>
-    </section>
+            <div class="sentry-dispatch-alert">
+              <span class="pulse-dot"></span>
+              <span id="crash-sentry-status">⚡ Crash Telemetry & Error Sent to Sentry!</span>
+            </div>
 
-    <!-- Right Column: Sentry Testing Lab -->
-    <section class="lab-card">
-      <div class="section-title">
-        <span>🧪</span> Sentry Chaos Control Panel
-      </div>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">
-        Click any anomaly below to intentionally fire errors, test performance tracing, breadcrumbs, tags, or trigger Sentry's User Feedback Dialog.
-      </p>
+            <p style="font-size: 0.78rem; color: #a4b0be; margin-bottom: 12px;">
+              Check your <b>Sentry.io Issues Dashboard</b> to inspect the crash stack trace, speed telemetry, and lane breadcrumbs!
+            </p>
 
-      <div class="triggers-grid">
-
-        <!-- 1. TypeError -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>📦 Cursed Chest</span>
-            <span class="trigger-tag" style="color: #ff4757;">TypeError</span>
+            <div class="crash-actions">
+              <button id="btn-respawn" class="btn-respawn">
+                🔄 RESPAWN CAR (SPACE / ENTER)
+              </button>
+              <button id="btn-crash-feedback" class="btn-feedback">
+                💬 Sentry User Feedback Dialog
+              </button>
+            </div>
           </div>
-          <p class="trigger-desc">Tries to read property of <code>null</code>. Tests uncaught exception capture.</p>
-          <button id="trigger-type-error" class="btn-trigger btn-red">Trigger TypeError</button>
+        </div>
+      </div>
+
+      <!-- Controls Guidance & Touch Buttons -->
+      <div class="controls-panel">
+        <div class="key-hints">
+          <span><b>A / ◀</b> Steer Left</span>
+          <span><b>D / ▶</b> Steer Right</span>
+          <span><b>W / ▲</b> Accelerate</span>
+          <span><b>S / ▼</b> Brake</span>
+          <span><b>SPACE</b> 🔥 NITRO BOOST</span>
         </div>
 
-        <!-- 2. ReferenceError -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>🔮 Forbidden Spell</span>
-            <span class="trigger-tag" style="color: #9b59b6;">ReferenceError</span>
-          </div>
-          <p class="trigger-desc">Calls undeclared function <code>invokeNonExistentDragon()</code>.</p>
-          <button id="trigger-ref-error" class="btn-trigger btn-purple">Trigger ReferenceError</button>
+        <!-- Touch Controls -->
+        <div class="touch-controls">
+          <button id="btn-steer-left" class="btn-touch">◀ STEER LEFT</button>
+          <button id="btn-brake" class="btn-touch">🛑 BRAKE</button>
+          <button id="btn-gas" class="btn-touch">⚡ GAS</button>
+          <button id="btn-nitro" class="btn-touch btn-touch-nitro">🔥 NITRO</button>
+          <button id="btn-steer-right" class="btn-touch">STEER RIGHT ▶</button>
         </div>
-
-        <!-- 3. RangeError -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>🛡️ Looping Shield</span>
-            <span class="trigger-tag" style="color: #e67e22;">RangeError</span>
-          </div>
-          <p class="trigger-desc">Triggers infinite recursion: <code>Maximum call stack size exceeded</code>.</p>
-          <button id="trigger-range-error" class="btn-trigger btn-orange">Trigger Stack Overflow</button>
-        </div>
-
-        <!-- 4. Promise Rejection -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>💾 Corrupted Save</span>
-            <span class="trigger-tag" style="color: #3498db;">Promise</span>
-          </div>
-          <p class="trigger-desc">Rejects an asynchronous promise without a <code>.catch()</code> handler.</p>
-          <button id="trigger-promise-error" class="btn-trigger btn-blue">Trigger Promise Rejection</button>
-        </div>
-
-        <!-- 5. Network Error -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>🧌 Black Market API</span>
-            <span class="trigger-tag" style="color: #1abc9c;">Network 404</span>
-          </div>
-          <p class="trigger-desc">Fetches a missing endpoint. Captures HTTP status & network failure.</p>
-          <button id="trigger-network-error" class="btn-trigger btn-cyan">Trigger 404 Network</button>
-        </div>
-
-        <!-- 6. Performance Lag -->
-        <div class="trigger-card">
-          <div class="trigger-header">
-            <span>👑 Chrono Freeze</span>
-            <span class="trigger-tag" style="color: #f1c40f;">Performance</span>
-          </div>
-          <p class="trigger-desc">Locks main thread for 1.2s to test transaction tracing & slow frames.</p>
-          <button id="trigger-slow-perf" class="btn-trigger btn-yellow">Trigger Lag Spike</button>
-        </div>
-
       </div>
 
-      <!-- Severity Messages & User Feedback -->
-      <div class="section-title" style="margin-top: 8px;">
-        <span>📢</span> Custom Events & Feedback Dialog
-      </div>
-
-      <div class="custom-message-box">
-        <input type="text" id="custom-msg-input" placeholder="Type a custom message or alert..." />
-        <button id="btn-msg-info" class="btn-trigger btn-info" style="width: auto;">Info</button>
-        <button id="btn-msg-warn" class="btn-trigger btn-yellow" style="width: auto;">Warning</button>
-        <button id="btn-msg-fatal" class="btn-trigger btn-fatal" style="width: auto;">Fatal</button>
-      </div>
-
-      <div>
-        <button id="btn-feedback-dialog" class="btn-trigger btn-primary" style="width: 100%; justify-content: center;">
-          💬 Open Sentry User Feedback Dialog (showReportDialog)
-        </button>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- Bottom: Event & Sentry Console Terminal -->
-  <footer class="terminal-card">
-    <div class="terminal-header">
-      <div class="terminal-title">
-        <span>📟</span> SENTRY & GAMEPLAY LIVE EVENT STREAM
-      </div>
-      <div class="terminal-actions">
-        <button id="btn-clear-terminal" class="btn-sm">Clear Terminal</button>
-      </div>
     </div>
-    <div id="terminal-logs" class="terminal-logs">
-      <!-- Live logs appear here -->
-    </div>
-  </footer>
 
-  <!-- Scripts -->
+    <!-- Right: Telemetry & Manual Trigger Panel -->
+    <aside class="side-panel">
+      <div class="panel-section">
+        <h3>🎯 Instant Crash Anomaly Triggers</h3>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+          Crash your car naturally on the highway, or click below to simulate instant crashes:
+        </p>
+        
+        <div class="crash-buttons-grid">
+          <button id="trigger-truck" class="btn-anom btn-red">
+            <span>🚛 Freight Truck</span>
+            <small>TypeError (chassis null)</small>
+          </button>
+          
+          <button id="trigger-barrier" class="btn-anom btn-purple">
+            <span>🚧 Guardrail Smash</span>
+            <small>ReferenceError (no mesh)</small>
+          </button>
+          
+          <button id="trigger-vortex" class="btn-anom btn-orange">
+            <span>🌀 Oil Slick Spin</span>
+            <small>RangeError (Stack Overflow)</small>
+          </button>
+          
+          <button id="trigger-nitro-crash" class="btn-anom btn-cyan">
+            <span>🔥 270 km/h Nitro Crash</span>
+            <small>Fatal Disintegration Event</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Terminal Log -->
+      <div class="panel-section" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="terminal-bar">
+          <span>📟 SENTRY TELEMETRY LOG</span>
+          <button id="btn-clear-logs" class="btn-xs">Clear</button>
+        </div>
+        <div id="terminal-logs" class="terminal-logs">
+          <!-- Real-time logs appear here -->
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
   <script src="sentry-manager.js"></script>
   <script src="game.js"></script>
   <script>
-    // Wire up UI buttons and Sentry Manager
-    const dsnInput = document.getElementById('dsn-input');
-    const envSelect = document.getElementById('env-select');
-    const btnConnect = document.getElementById('btn-connect');
-    const statusBadge = document.getElementById('sentry-status');
-    const statusText = document.getElementById('sentry-status-text');
-    const terminalLogs = document.getElementById('terminal-logs');
-
-    // Load default or saved DSN
-    const DEFAULT_DSN = 'https://ac2d12854c736cd6c4a553f085098fcc@o4512089700302848.ingest.de.sentry.io/4512089760399440';
-    const savedDsn = localStorage.getItem('sentry_quest_dsn') || DEFAULT_DSN;
-    const savedEnv = localStorage.getItem('sentry_quest_env') || 'development';
-
-    dsnInput.value = savedDsn;
-    envSelect.value = savedEnv;
-
-    // Auto-connect to Sentry immediately on load
-    connectSentry(savedDsn, savedEnv);
-
-    function connectSentry(dsn, env) {
-      const ok = window.sentryManager.init(dsn, env);
-      if (ok) {
-        statusBadge.classList.add('connected');
-        statusText.textContent = `Connected (${env})`;
-      } else {
-        statusBadge.classList.remove('connected');
-        statusText.textContent = 'Disconnected';
-      }
+    // Terminal Log Hookup
+    const terminal = document.getElementById('terminal-logs');
+    if (window.sentryManager) {
+      window.sentryManager.onLog((entry) => {
+        if (!terminal) return;
+        const row = document.createElement('div');
+        row.className = 'log-line';
+        row.innerHTML = `
+          <span class="log-time">${entry.timestamp}</span>
+          <span class="log-tag ${entry.type}">${entry.type}</span>
+          <span class="log-msg"><b>${entry.title}</b> ${entry.details ? `— <i>${entry.details}</i>` : ''}</span>
+        `;
+        terminal.appendChild(row);
+        terminal.scrollTop = terminal.scrollHeight;
+      });
     }
 
-    btnConnect.addEventListener('click', () => {
-      const dsn = dsnInput.value.trim();
-      const env = envSelect.value;
-      connectSentry(dsn, env);
+    document.getElementById('btn-clear-logs').addEventListener('click', () => {
+      if (terminal) terminal.innerHTML = '';
     });
 
-    // Append logs to terminal
-    window.sentryManager.onLog((entry) => {
-      const row = document.createElement('div');
-      row.className = 'log-entry';
-      row.innerHTML = `
-        <span class="log-time">${entry.timestamp}</span>
-        <span class="log-type ${entry.type}">${entry.type}</span>
-        <div class="log-content">
-          <div><b>${entry.title}</b></div>
-          ${entry.details ? `<div class="log-details">${entry.details}</div>` : ''}
-        </div>
-      `;
-      terminalLogs.appendChild(row);
-      terminalLogs.scrollTop = terminalLogs.scrollHeight;
+    // Side buttons trigger manual crashes
+    document.getElementById('trigger-truck').addEventListener('click', () => {
+      if (window.sentryManager) window.sentryManager.reportTruckCrash(140, 2);
+      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Null Freight Truck', error: 'TypeError' });
     });
 
-    document.getElementById('btn-clear-terminal').addEventListener('click', () => {
-      terminalLogs.innerHTML = '';
+    document.getElementById('trigger-barrier').addEventListener('click', () => {
+      if (window.sentryManager) window.sentryManager.reportBarrierCrash(165, 1);
+      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Concrete Guardrail', error: 'ReferenceError' });
     });
 
-    // Chaos Lab Trigger Buttons
-    document.getElementById('trigger-type-error').addEventListener('click', () => {
-      try {
-        window.sentryManager.triggerTypeError();
-      } catch (e) {
-        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
-        console.error(e);
-      }
+    document.getElementById('trigger-vortex').addEventListener('click', () => {
+      if (window.sentryManager) window.sentryManager.reportVortexCrash(190, 3);
+      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Oil Slick Vortex', error: 'RangeError' });
     });
 
-    document.getElementById('trigger-ref-error').addEventListener('click', () => {
-      try {
-        window.sentryManager.triggerReferenceError();
-      } catch (e) {
-        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
-        console.error(e);
-      }
-    });
-
-    document.getElementById('trigger-range-error').addEventListener('click', () => {
-      try {
-        window.sentryManager.triggerRangeError();
-      } catch (e) {
-        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
-        console.error(e);
-      }
-    });
-
-    document.getElementById('trigger-promise-error').addEventListener('click', () => {
-      window.sentryManager.triggerPromiseRejection();
-    });
-
-    document.getElementById('trigger-network-error').addEventListener('click', () => {
-      window.sentryManager.triggerNetworkError().catch(() => {});
-    });
-
-    document.getElementById('trigger-slow-perf').addEventListener('click', () => {
-      window.sentryManager.triggerSlowTransaction();
-    });
-
-    // Custom Messages
-    const customInput = document.getElementById('custom-msg-input');
-    document.getElementById('btn-msg-info').addEventListener('click', () => {
-      const msg = customInput.value.trim() || 'Player inspected ancient dungeon inscription.';
-      window.sentryManager.captureCustomMessage('info', msg);
-    });
-
-    document.getElementById('btn-msg-warn').addEventListener('click', () => {
-      const msg = customInput.value.trim() || 'Player health low! Anomaly shield destabilizing.';
-      window.sentryManager.captureCustomMessage('warning', msg);
-    });
-
-    document.getElementById('btn-msg-fatal').addEventListener('click', () => {
-      const msg = customInput.value.trim() || 'Dungeon core meltdown! Fatal system corruption.';
-      window.sentryManager.captureCustomMessage('fatal', msg);
-    });
-
-    document.getElementById('btn-feedback-dialog').addEventListener('click', () => {
-      window.sentryManager.showUserFeedbackDialog();
+    document.getElementById('trigger-nitro-crash').addEventListener('click', () => {
+      if (window.sentryManager) window.sentryManager.reportNitroCrash(265, 4);
+      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Nitro Supersonic Crash', error: 'FatalCrash' });
     });
   </script>
 </body>

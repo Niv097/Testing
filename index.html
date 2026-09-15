@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentry Bug Quest - Error & Observability Testing Lab</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Sentry Browser SDK with Tracing & Session Replay -->
+  <script
+    src="https://browser.sentry-cdn.com/8.48.0/bundle.tracing.replay.min.js"
+    integrity="sha384-sO9mKj8Xl+z6VfH8sF8OqI256lB1K8C+KzVf8oY/1O2N8Y1o/oOqg67e3mE3nQfL"
+    crossorigin="anonymous"
+  ></script>
+</head>
+<body>
+
+  <!-- Header: DSN Setup & Status -->
+  <header>
+    <div class="brand">
+      <span style="font-size: 1.8rem;">⚔️</span>
+      <div>
+        <h1>Sentry Bug Quest</h1>
+        <p style="font-size: 0.75rem; color: var(--text-muted);">The Glitched Dungeon & Sentry Observability Lab</p>
+      </div>
+    </div>
+
+    <div class="dsn-config-form">
+      <div class="input-group">
+        <input
+          type="text"
+          id="dsn-input"
+          placeholder="Paste your Sentry DSN here (e.g. https://xyz@o123.ingest.sentry.io/456)"
+          autocomplete="off"
+        />
+      </div>
+      <select id="env-select" class="env-select">
+        <option value="development">development</option>
+        <option value="staging">staging</option>
+        <option value="production">production</option>
+      </select>
+      <button id="btn-connect" class="btn-primary">
+        <span>⚡</span> Connect Sentry
+      </button>
+      <div id="sentry-status" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="sentry-status-text">Disconnected</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game & Lab Grid -->
+  <div class="main-grid">
+
+    <!-- Left Column: Playable Game Arena -->
+    <section class="game-card">
+      <div class="hud-panel">
+        <div class="hud-bar-container">
+          <span>HP</span>
+          <div class="hud-bar">
+            <div id="hud-hp" class="hud-bar-fill hud-hp-fill" style="width: 100%;"></div>
+          </div>
+          <span id="hud-hp-text" style="font-size: 0.75rem; color: #ff4757;">100/100</span>
+        </div>
+
+        <div class="hud-bar-container">
+          <span>MP</span>
+          <div class="hud-bar">
+            <div id="hud-mana" class="hud-bar-fill hud-mana-fill" style="width: 80%;"></div>
+          </div>
+          <span id="hud-mana-text" style="font-size: 0.75rem; color: #3498db;">80/100</span>
+        </div>
+
+        <div class="hud-stat">
+          <span>🪙</span> <span id="hud-gold">50</span>
+        </div>
+        <div class="hud-stat">
+          <span>⭐ Lv</span> <span id="hud-level">3</span>
+        </div>
+        <div class="hud-stat">
+          <span>👣</span> <span id="hud-steps">0</span>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas" width="640" height="480"></canvas>
+      </div>
+
+      <div class="controls-hint">
+        <span>🎮 Controls: <b>WASD</b> or <b>Arrow Keys</b> to move. <b>Space / E</b> to interact.</span>
+        <span>Tile walk generates <b>Sentry Breadcrumbs</b></span>
+      </div>
+
+      <!-- Touch / D-pad Controls -->
+      <div class="dpad">
+        <button id="btn-up">▲</button>
+        <button id="btn-left">◀</button>
+        <button id="btn-action">ACTION</button>
+        <button id="btn-right">▶</button>
+        <button id="btn-down">▼</button>
+      </div>
+    </section>
+
+    <!-- Right Column: Sentry Testing Lab -->
+    <section class="lab-card">
+      <div class="section-title">
+        <span>🧪</span> Sentry Chaos Control Panel
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">
+        Click any anomaly below to intentionally fire errors, test performance tracing, breadcrumbs, tags, or trigger Sentry's User Feedback Dialog.
+      </p>
+
+      <div class="triggers-grid">
+
+        <!-- 1. TypeError -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>📦 Cursed Chest</span>
+            <span class="trigger-tag" style="color: #ff4757;">TypeError</span>
+          </div>
+          <p class="trigger-desc">Tries to read property of <code>null</code>. Tests uncaught exception capture.</p>
+          <button id="trigger-type-error" class="btn-trigger btn-red">Trigger TypeError</button>
+        </div>
+
+        <!-- 2. ReferenceError -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>🔮 Forbidden Spell</span>
+            <span class="trigger-tag" style="color: #9b59b6;">ReferenceError</span>
+          </div>
+          <p class="trigger-desc">Calls undeclared function <code>invokeNonExistentDragon()</code>.</p>
+          <button id="trigger-ref-error" class="btn-trigger btn-purple">Trigger ReferenceError</button>
+        </div>
+
+        <!-- 3. RangeError -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>🛡️ Looping Shield</span>
+            <span class="trigger-tag" style="color: #e67e22;">RangeError</span>
+          </div>
+          <p class="trigger-desc">Triggers infinite recursion: <code>Maximum call stack size exceeded</code>.</p>
+          <button id="trigger-range-error" class="btn-trigger btn-orange">Trigger Stack Overflow</button>
+        </div>
+
+        <!-- 4. Promise Rejection -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>💾 Corrupted Save</span>
+            <span class="trigger-tag" style="color: #3498db;">Promise</span>
+          </div>
+          <p class="trigger-desc">Rejects an asynchronous promise without a <code>.catch()</code> handler.</p>
+          <button id="trigger-promise-error" class="btn-trigger btn-blue">Trigger Promise Rejection</button>
+        </div>
+
+        <!-- 5. Network Error -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>🧌 Black Market API</span>
+            <span class="trigger-tag" style="color: #1abc9c;">Network 404</span>
+          </div>
+          <p class="trigger-desc">Fetches a missing endpoint. Captures HTTP status & network failure.</p>
+          <button id="trigger-network-error" class="btn-trigger btn-cyan">Trigger 404 Network</button>
+        </div>
+
+        <!-- 6. Performance Lag -->
+        <div class="trigger-card">
+          <div class="trigger-header">
+            <span>👑 Chrono Freeze</span>
+            <span class="trigger-tag" style="color: #f1c40f;">Performance</span>
+          </div>
+          <p class="trigger-desc">Locks main thread for 1.2s to test transaction tracing & slow frames.</p>
+          <button id="trigger-slow-perf" class="btn-trigger btn-yellow">Trigger Lag Spike</button>
+        </div>
+
+      </div>
+
+      <!-- Severity Messages & User Feedback -->
+      <div class="section-title" style="margin-top: 8px;">
+        <span>📢</span> Custom Events & Feedback Dialog
+      </div>
+
+      <div class="custom-message-box">
+        <input type="text" id="custom-msg-input" placeholder="Type a custom message or alert..." />
+        <button id="btn-msg-info" class="btn-trigger btn-info" style="width: auto;">Info</button>
+        <button id="btn-msg-warn" class="btn-trigger btn-yellow" style="width: auto;">Warning</button>
+        <button id="btn-msg-fatal" class="btn-trigger btn-fatal" style="width: auto;">Fatal</button>
+      </div>
+
+      <div>
+        <button id="btn-feedback-dialog" class="btn-trigger btn-primary" style="width: 100%; justify-content: center;">
+          💬 Open Sentry User Feedback Dialog (showReportDialog)
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom: Event & Sentry Console Terminal -->
+  <footer class="terminal-card">
+    <div class="terminal-header">
+      <div class="terminal-title">
+        <span>📟</span> SENTRY & GAMEPLAY LIVE EVENT STREAM
+      </div>
+      <div class="terminal-actions">
+        <button id="btn-clear-terminal" class="btn-sm">Clear Terminal</button>
+      </div>
+    </div>
+    <div id="terminal-logs" class="terminal-logs">
+      <!-- Live logs appear here -->
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="sentry-manager.js"></script>
+  <script src="game.js"></script>
+  <script>
+    // Wire up UI buttons and Sentry Manager
+    const dsnInput = document.getElementById('dsn-input');
+    const envSelect = document.getElementById('env-select');
+    const btnConnect = document.getElementById('btn-connect');
+    const statusBadge = document.getElementById('sentry-status');
+    const statusText = document.getElementById('sentry-status-text');
+    const terminalLogs = document.getElementById('terminal-logs');
+
+    // Load saved DSN
+    const savedDsn = localStorage.getItem('sentry_quest_dsn');
+    const savedEnv = localStorage.getItem('sentry_quest_env') || 'development';
+    if (savedDsn) {
+      dsnInput.value = savedDsn;
+      envSelect.value = savedEnv;
+      connectSentry(savedDsn, savedEnv);
+    } else {
+      window.sentryManager.logToUI('warning', 'No Sentry DSN detected', 'Paste your project DSN from sentry.io into the top field to test live tracking.');
+    }
+
+    function connectSentry(dsn, env) {
+      const ok = window.sentryManager.init(dsn, env);
+      if (ok) {
+        statusBadge.classList.add('connected');
+        statusText.textContent = `Connected (${env})`;
+      } else {
+        statusBadge.classList.remove('connected');
+        statusText.textContent = 'Disconnected';
+      }
+    }
+
+    btnConnect.addEventListener('click', () => {
+      const dsn = dsnInput.value.trim();
+      const env = envSelect.value;
+      connectSentry(dsn, env);
+    });
+
+    // Append logs to terminal
+    window.sentryManager.onLog((entry) => {
+      const row = document.createElement('div');
+      row.className = 'log-entry';
+      row.innerHTML = `
+        <span class="log-time">${entry.timestamp}</span>
+        <span class="log-type ${entry.type}">${entry.type}</span>
+        <div class="log-content">
+          <div><b>${entry.title}</b></div>
+          ${entry.details ? `<div class="log-details">${entry.details}</div>` : ''}
+        </div>
+      `;
+      terminalLogs.appendChild(row);
+      terminalLogs.scrollTop = terminalLogs.scrollHeight;
+    });
+
+    document.getElementById('btn-clear-terminal').addEventListener('click', () => {
+      terminalLogs.innerHTML = '';
+    });
+
+    // Chaos Lab Trigger Buttons
+    document.getElementById('trigger-type-error').addEventListener('click', () => {
+      try {
+        window.sentryManager.triggerTypeError();
+      } catch (e) {
+        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
+        console.error(e);
+      }
+    });
+
+    document.getElementById('trigger-ref-error').addEventListener('click', () => {
+      try {
+        window.sentryManager.triggerReferenceError();
+      } catch (e) {
+        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
+        console.error(e);
+      }
+    });
+
+    document.getElementById('trigger-range-error').addEventListener('click', () => {
+      try {
+        window.sentryManager.triggerRangeError();
+      } catch (e) {
+        if (typeof Sentry !== 'undefined') Sentry.captureException(e);
+        console.error(e);
+      }
+    });
+
+    document.getElementById('trigger-promise-error').addEventListener('click', () => {
+      window.sentryManager.triggerPromiseRejection();
+    });
+
+    document.getElementById('trigger-network-error').addEventListener('click', () => {
+      window.sentryManager.triggerNetworkError().catch(() => {});
+    });
+
+    document.getElementById('trigger-slow-perf').addEventListener('click', () => {
+      window.sentryManager.triggerSlowTransaction();
+    });
+
+    // Custom Messages
+    const customInput = document.getElementById('custom-msg-input');
+    document.getElementById('btn-msg-info').addEventListener('click', () => {
+      const msg = customInput.value.trim() || 'Player inspected ancient dungeon inscription.';
+      window.sentryManager.captureCustomMessage('info', msg);
+    });
+
+    document.getElementById('btn-msg-warn').addEventListener('click', () => {
+      const msg = customInput.value.trim() || 'Player health low! Anomaly shield destabilizing.';
+      window.sentryManager.captureCustomMessage('warning', msg);
+    });
+
+    document.getElementById('btn-msg-fatal').addEventListener('click', () => {
+      const msg = customInput.value.trim() || 'Dungeon core meltdown! Fatal system corruption.';
+      window.sentryManager.captureCustomMessage('fatal', msg);
+    });
+
+    document.getElementById('btn-feedback-dialog').addEventListener('click', () => {
+      window.sentryManager.showUserFeedbackDialog();
+    });
+  </script>
+</body>
+</html>

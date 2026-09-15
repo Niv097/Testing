@@ -1,0 +1,13 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment / local configs
+.env
+.env.local
+.env.*.local

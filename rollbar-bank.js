@@ -28,7 +28,6 @@ class RollbarBankManager {
 
     if (typeof Rollbar !== 'undefined') {
       try {
-        // Configure Customer Person & Portfolio Context
         Rollbar.configure({
           payload: {
             environment: this.environment,
@@ -48,7 +47,6 @@ class RollbarBankManager {
           }
         });
 
-        // Send initial connection verification item to Rollbar
         Rollbar.info('BuggyBank FinTech portal loaded with Rollbar monitoring active', {
           sessionStarted: new Date().toISOString(),
           customerTier: 'Platinum'
@@ -56,15 +54,58 @@ class RollbarBankManager {
 
         this.isInitialized = true;
         this.logToUI('success', 'Rollbar Connected & Monitoring Active', 'All uncaught errors, unhandled rejections, and financial telemetry will stream to Rollbar.');
-        return true;
       } catch (err) {
         console.warn('Rollbar configuration notice:', err);
       }
     }
 
+    // Direct ingest verification
+    this.sendDirectToRollbar('info', 'BuggyBank FinTech portal initial check', {
+      custom: { startup: 'verified', client: 'BuggyBank Web' }
+    });
+
     this.isInitialized = true;
-    this.logToUI('success', 'Rollbar Loaded', 'Rollbar snippet active.');
     return true;
+  }
+
+  async sendDirectToRollbar(level, message, traceOrExtra = {}) {
+    try {
+      const payload = {
+        access_token: this.token,
+        data: {
+          environment: this.environment,
+          level: level || 'error',
+          platform: 'browser',
+          language: 'javascript',
+          framework: 'browser-js',
+          body: traceOrExtra.trace ? { trace: traceOrExtra.trace } : { message: { body: message } },
+          client: {
+            javascript: {
+              browser: navigator.userAgent || 'Chrome/120.0',
+              code_version: '1.0.0'
+            }
+          },
+          person: {
+            id: 'cust_wealth_9942',
+            username: 'Alexander Wright',
+            email: 'a.wright@private-wealth.corp'
+          },
+          custom: traceOrExtra.custom || {}
+        }
+      };
+
+      await fetch('https://api.rollbar.com/api/1/item/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Rollbar-Access-Token': this.token
+        },
+        body: JSON.stringify(payload),
+        mode: 'cors'
+      });
+    } catch (e) {
+      console.warn('Direct Rollbar fetch note:', e);
+    }
   }
 
   addTelemetry(category, message, metadata = {}) {
@@ -99,10 +140,25 @@ class RollbarBankManager {
         channel: 'WEB_SWIFT_PORTAL',
         failureStage: 'ROUTING_VALIDATION'
       });
-      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: Wire Transfer TypeError ($${amount})`);
     }
 
-    // Trigger uncaught so Rollbar's window.onerror catches it natively
+    this.sendDirectToRollbar('error', `Wire Transfer Pipeline Crash: ${error.message}`, {
+      trace: {
+        frames: [
+          { filename: 'app.js', lineno: 248, colno: 12, method: 'handleWireTransfer' },
+          { filename: 'rollbar-bank.js', lineno: 110, colno: 18, method: 'reportTransferTypeError' }
+        ],
+        exception: {
+          class: 'TypeError',
+          message: error.message,
+          description: `Wire Transfer Crash: Failed to process $${amount} to ${recipientName}`
+        }
+      },
+      custom: { recipient: recipientName, amount: `$${amount}`, channel: 'WEB_SWIFT_PORTAL' }
+    });
+
+    this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: Wire Transfer TypeError ($${amount})`);
+
     setTimeout(() => {
       throw error;
     }, 0);
@@ -122,8 +178,24 @@ class RollbarBankManager {
         termYears: years,
         failureReason: 'STACK_OVERFLOW_EXPANSION'
       });
-      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: RangeError Stack Overflow`);
     }
+
+    this.sendDirectToRollbar('error', `Amortization Engine Crash: ${error.message}`, {
+      trace: {
+        frames: [
+          { filename: 'app.js', lineno: 340, colno: 14, method: 'calculateCompoundSchedule' },
+          { filename: 'app.js', lineno: 340, colno: 14, method: 'calculateCompoundSchedule' }
+        ],
+        exception: {
+          class: 'RangeError',
+          message: error.message,
+          description: `Stack overflow on $${principal.toLocaleString()} loan amortization`
+        }
+      },
+      custom: { principal, rate, years }
+    });
+
+    this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: RangeError Stack Overflow`);
 
     setTimeout(() => {
       function calculateCompoundSchedule(depth = 0) {
@@ -157,8 +229,13 @@ class RollbarBankManager {
           httpStatus: 500,
           service: 'FEDERAL_FOREX_GATEWAY'
         });
-        this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: Network HTTP 500 for ${pair}`);
       }
+
+      this.sendDirectToRollbar('error', `Forex Gateway Failure: HTTP 500 on ${pair}`, {
+        custom: { endpoint: '/v2/rates/live', currencyPair: pair, httpStatus: 500 }
+      });
+
+      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', `Item: Network HTTP 500 for ${pair}`);
     }
   }
 
@@ -173,10 +250,14 @@ class RollbarBankManager {
         vault: 'ETH_COLD_STORAGE',
         errorCode: '0x8A7C99F1'
       });
-      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', 'Item: FIDO2HardwareAttestationError');
     }
 
-    // Trigger real unhandled rejection for Rollbar's captureUnhandledRejections handler
+    this.sendDirectToRollbar('error', 'Unhandled Promise Rejection: FIDO2HardwareAttestationError (Cold Vault Withdrawal)', {
+      custom: { token: 'FIDO2_LEDGER_NANO', vault: 'ETH_COLD_STORAGE', errorCode: '0x8A7C99F1' }
+    });
+
+    this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: ERROR]', 'Item: FIDO2HardwareAttestationError');
+
     new Promise((_, reject) => {
       setTimeout(() => {
         reject(new Error('FIDO2HardwareAttestationError: Biometric token signature mismatch [0x8A7C99F1]'));
@@ -199,8 +280,13 @@ class RollbarBankManager {
         regulatoryJurisdiction: 'US-FINCEN / OFAC',
         complianceQueue: 'ESCALATED_IMMEDIATE_AUDIT'
       });
-      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: WARNING]', `Item: AML Alert ($${amount.toLocaleString()})`);
     }
+
+    this.sendDirectToRollbar('warning', alertMsg, {
+      custom: { amount, reason, riskScore: '0.89', queue: 'ESCALATED' }
+    });
+
+    this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: WARNING]', `Item: AML Alert ($${amount.toLocaleString()})`);
   }
 
   // 6. Core Database Desync (Rollbar.critical)
@@ -217,8 +303,13 @@ class RollbarBankManager {
         automatedCircuitBreaker: 'TRIPPED',
         vaultId: 'CUST-9942'
       });
-      this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: CRITICAL]', 'Item: Core Ledger Desync SEV-0');
     }
+
+    this.sendDirectToRollbar('critical', criticalMsg, {
+      custom: { details, severity: 'SEV-0', vaultId: 'CUST-9942' }
+    });
+
+    this.logToUI('rollbar-sent', 'Dispatched to Rollbar [Level: CRITICAL]', 'Item: Core Ledger Desync SEV-0');
   }
 }
 

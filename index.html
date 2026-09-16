@@ -11,10 +11,18 @@
     accessToken: "060195a760694ccd9e4f5dda70b1079d",
     captureUncaught: true,
     captureUnhandledRejections: true,
-    // Enable Session Replay
+    // Enable Session Replay with visible inputs (except password)
     replay: {
-      enabled: true
+      enabled: true,
+      maskAllInputs: false,
+      maskInputOptions: {
+        password: true,
+        text: false,
+        email: false
+      }
     },
+    scrubFields: ['password', 'secret', 'token', 'credit_card'],
+    scrubTelemetryInputs: false,
     autoInstrument: {
       network: true,
       log: true,
@@ -30,7 +38,6 @@
           source_map_enabled: true
         }
       },
-      scrubFields: ['password', 'secret', 'token', 'credit_card'],
       person: {
         id: 'cust_wealth_9942',
         username: 'Niv Sapra',

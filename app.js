@@ -1,5 +1,5 @@
 /**
- * BuggyBank - Modern FinTech Application Engine with Rollbar Observability
+ * BuggyBank - Modern FinTech Application Engine with Rollbar Observability & PII Login
  */
 
 class BankAudio {
@@ -19,7 +19,7 @@ class BankAudio {
     try {
       this.init();
       if (!this.ctx) return;
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, idx) => {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -129,23 +129,36 @@ class BuggyBankApp {
       });
     }
 
-    // Modal Trigger
-    const openTransferBtn = document.getElementById('btn-open-transfer');
-    const modal = document.getElementById('transfer-modal');
-    const closeModalBtn = document.getElementById('btn-close-modal');
+    // Login Modal Handler
+    const openLoginBtn = document.getElementById('btn-open-login');
+    const loginModal = document.getElementById('login-modal');
+    const closeLoginBtn = document.getElementById('btn-close-login');
+    const loginForm = document.getElementById('login-form');
 
-    if (openTransferBtn && modal) {
-      openTransferBtn.addEventListener('click', () => {
-        modal.classList.add('open');
-        if (window.rollbarBank) {
-          window.rollbarBank.addTelemetry('navigation', 'Customer opened Wire Transfer modal dialog');
-        }
+    if (openLoginBtn && loginModal) {
+      openLoginBtn.addEventListener('click', () => {
+        loginModal.classList.add('open');
       });
     }
 
-    if (closeModalBtn && modal) {
-      closeModalBtn.addEventListener('click', () => {
-        modal.classList.remove('open');
+    if (closeLoginBtn && loginModal) {
+      closeLoginBtn.addEventListener('click', () => {
+        loginModal.classList.remove('open');
+      });
+    }
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleUserLogin();
+      });
+    }
+
+    // Direct Login Crash button in modal
+    const btnDirectLoginCrash = document.getElementById('btn-login-crash-direct');
+    if (btnDirectLoginCrash) {
+      btnDirectLoginCrash.addEventListener('click', () => {
+        this.handleUserLogin(true);
       });
     }
 
@@ -160,6 +173,70 @@ class BuggyBankApp {
           }
         }
       });
+    }
+  }
+
+  handleUserLogin(forceCrash = false) {
+    const nameInput = document.getElementById('login-name');
+    const emailInput = document.getElementById('login-email');
+    const phoneInput = document.getElementById('login-phone');
+    const passInput = document.getElementById('login-password');
+    const errorCheck = document.getElementById('login-trigger-error');
+
+    const username = nameInput ? nameInput.value.trim() : 'Niv Sapra';
+    const email = emailInput ? emailInput.value.trim() : 'niv@example.com';
+    const phone = phoneInput ? phoneInput.value.trim() : '+1-555-0142';
+    const password = passInput ? passInput.value : 'SecretPass123!';
+    const shouldCrash = forceCrash || (errorCheck ? errorCheck.checked : true);
+
+    // Update Header Avatar & Name in UI
+    const nameEl = document.querySelector('.user-name');
+    if (nameEl) nameEl.textContent = username;
+    const avatarEl = document.querySelector('.avatar');
+    if (avatarEl) {
+      const parts = username.split(' ');
+      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : username.substring(0, 2).toUpperCase();
+      avatarEl.textContent = initials;
+    }
+
+    const credentials = {
+      id: 'cust_' + Math.floor(Math.random() * 9000 + 1000),
+      username,
+      email,
+      phone,
+      password
+    };
+
+    if (shouldCrash) {
+      this.audio.playError();
+      const statusBox = document.getElementById('login-status-box');
+      if (statusBox) {
+        statusBox.className = 'status-box error';
+        statusBox.innerHTML = `
+          <b>💥 LOGIN AUTHENTICATION CRASHED!</b>
+          <p>Dispatched error with PII (${username}, ${email}, ${phone}) to Rollbar!</p>
+        `;
+      }
+      if (window.rollbarBank) {
+        window.rollbarBank.reportLoginAuthError(credentials);
+      }
+    } else {
+      this.audio.playSuccess();
+      if (window.rollbarBank) {
+        window.rollbarBank.setPerson(credentials, { phone_number: phone });
+      }
+      const statusBox = document.getElementById('login-status-box');
+      if (statusBox) {
+        statusBox.className = 'status-box success';
+        statusBox.innerHTML = `
+          <b>✅ Logged in successfully as ${username}!</b>
+          <p>Rollbar Person updated to ${email}</p>
+        `;
+      }
+      setTimeout(() => {
+        const modal = document.getElementById('login-modal');
+        if (modal) modal.classList.remove('open');
+      }, 1200);
     }
   }
 
@@ -337,7 +414,6 @@ class BuggyBankApp {
     const years = parseInt(document.getElementById('loan-term').value) || 30;
 
     if (triggerGlitch) {
-      // Trigger intentional RangeError: Maximum call stack size exceeded
       this.audio.playError();
       const resEl = document.getElementById('loan-result-box');
       if (resEl) {
@@ -352,7 +428,6 @@ class BuggyBankApp {
       return;
     }
 
-    // Normal valid calculation
     const monthlyRate = (rate / 100) / 12;
     const totalPayments = years * 12;
     const monthlyPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1);

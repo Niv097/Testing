@@ -30,10 +30,11 @@
           source_map_enabled: true
         }
       },
+      scrubFields: ['password', 'secret', 'token', 'credit_card'],
       person: {
         id: 'cust_wealth_9942',
-        username: 'Alexander Wright',
-        email: 'a.wright@private-wealth.corp'
+        username: 'Niv Sapra',
+        email: 'niv.sapra@private-wealth.corp'
       },
       custom: {
         subscription_tier: 'Platinum Private Wealth',
@@ -665,6 +666,35 @@ body {
   flex: 1;
 }
 
+
+/* Modal Overlay & Box */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 15, 0.85);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.modal-overlay.open {
+  display: flex;
+}
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  max-width: 520px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 </style>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -692,12 +722,15 @@ body {
     <div class="header-right">
       <div class="sentry-status-badge">
         <span class="pulse-dot"></span>
-        <span>🟢 Rollbar Connected (Production)</span>
+        <span>🟢 Rollbar Connected</span>
       </div>
+      <button id="btn-open-login" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;">
+        🔑 Login / PII Test
+      </button>
       <div class="user-profile">
-        <div class="avatar">AW</div>
+        <div class="avatar">NS</div>
         <div class="user-meta">
-          <span class="user-name">Alexander Wright</span>
+          <span class="user-name">Niv Sapra</span>
           <span class="user-tier">Platinum Tier • US-FINCEN</span>
         </div>
       </div>
@@ -966,6 +999,16 @@ body {
             <button id="btn-trigger-fatal" class="btn btn-danger btn-sm">Dispatch Critical Event</button>
           </div>
 
+          <!-- Card 7: PII Login Auth Crash -->
+          <div class="chaos-card" style="border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+            <div class="chaos-head">
+              <span>🔑 Login Auth & PII Crash</span>
+              <span class="badge badge-red">PII Error</span>
+            </div>
+            <p>Simulates authentication failure sending full customer PII (Name, Email, Phone, IP) to Rollbar with password auto-scrubbed.</p>
+            <button id="btn-trigger-login-pii" class="btn btn-danger btn-sm">💥 Trigger PII Login Crash</button>
+          </div>
+
         </div>
 
         <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -995,6 +1038,61 @@ body {
         <!-- Live telemetry logs appear here -->
       </div>
     </footer>
+
+  
+    <!-- Customer Login & PII Modal -->
+    <div id="login-modal" class="modal-overlay">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>🔑</span> Customer Login & PII Management
+          </h3>
+          <button id="btn-close-login" class="btn-xs" style="font-size: 0.9rem; cursor: pointer; padding: 4px 8px;">✕</button>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+          Submit credentials to update the <b>Person PII</b> in Rollbar. You can also trigger an intentional crash on login to see how PII is displayed in Rollbar's <b>Items</b> and <b>People</b> tabs.
+        </p>
+
+        <form id="login-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label for="login-name">Customer Full Name (PII)</label>
+            <input type="text" id="login-name" class="form-control" value="Niv Sapra" required />
+          </div>
+          <div class="form-group">
+            <label for="login-email">Customer Email Address (PII)</label>
+            <input type="email" id="login-email" class="form-control" value="niv.sapra@private-wealth.corp" required />
+          </div>
+          <div class="form-group">
+            <label for="login-phone">Phone Number (PII)</label>
+            <input type="text" id="login-phone" class="form-control" value="+1-555-0142" />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password (Auto-Scrubbed by Rollbar scrubFields)</label>
+            <input type="password" id="login-password" class="form-control" value="SuperSecretPassword123!" />
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; background: var(--bg-inner); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <input type="checkbox" id="login-trigger-error" checked />
+            <label for="login-trigger-error" style="color: #f87171; font-weight: 600; cursor: pointer;">
+              💥 Crash on Login (Simulate Auth Failure & Send PII)
+            </label>
+          </div>
+
+          <div id="login-status-box" class="status-box empty">
+            <span>Ready to authenticate.</span>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">
+              Sign In (Update PII)
+            </button>
+            <button type="button" id="btn-login-crash-direct" class="btn btn-danger" style="flex: 1;">
+              💥 Trigger Auth Crash
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   </main>
 
@@ -1047,6 +1145,15 @@ body {
     document.getElementById('btn-trigger-fatal').addEventListener('click', () => {
       if (window.rollbarBank) window.rollbarBank.reportCoreFatalSync('Account vault 9942 hash checksum mismatch: expected 0xA4F, received 0x000');
     });
+
+    const triggerLoginBtn = document.getElementById('btn-trigger-login-pii');
+    if (triggerLoginBtn) {
+      triggerLoginBtn.addEventListener('click', () => {
+        if (window.buggyBank) {
+          window.buggyBank.handleUserLogin(true);
+        }
+      });
+    }
   </script>
 </body>
 </html>

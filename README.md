@@ -1,56 +1,104 @@
-# 🏎️ Sentry Crash Racer: Highway Telemetry & Crash Lab
+# 🏛️ BuggyBank - FinTech Wealth Management & Rollbar Observability Lab
 
-An action-packed highway car racing game where **every collision triggers real-time Sentry errors**, complete with telemetry breadcrumbs (speed, lane, nitro), user context, and crash dumps!
+A modern, high-end FinTech web banking application designed to simulate real-world financial workflows, error states, security compliance warnings, and telemetry tracking in **Rollbar**.
 
-![Sentry Tested](https://img.shields.io/badge/Sentry-Tested-362D59?logo=sentry&logoColor=white)
+![Rollbar](https://img.shields.io/badge/Rollbar-Active-1F2A44?logo=rollbar&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/Language-Vanilla%20JS%20ES6+-F7DF1E?logo=javascript&logoColor=black)
+![Domain](https://img.shields.io/badge/Domain-FinTech%20%2F%20Banking-10B981)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ---
 
-## 🚗 Gameplay Overview
+## 💼 Application Features
 
-Drive your high-speed sports car down a 4-lane highway. Dodging traffic earns points and logs continuous driving telemetry into Sentry. Slamming into obstacles triggers real JavaScript crashes and dispatches them straight to your **Sentry.io** dashboard.
-
-- **Cruise Speed**: 110 - 150 km/h
-- **Gas**: Up to 210 km/h
-- **Nitro Boost**: 270 km/h with cyan exhaust flames!
-- **Audio**: Built-in engine hum, tire screech, and explosive crash sound effects powered by Web Audio API.
+**BuggyBank** simulates the private wealth portal of high-net-worth client **Alexander Wright** ($157,050.00 Net Worth):
+- **Portfolio Overview**: Real-time checking, high-yield savings (4.75% APY), and cold-storage crypto assets.
+- **SWIFT Wire Transfers**: Domestic & international wire transfer pipeline with real-time balance deductions.
+- **Forex Exchange Engine**: Central Bank real-time currency exchange pairs (USD/EUR, USD/GBP, USD/JPY, USD/BTC).
+- **Loan & Mortgage Calculator**: Fixed-rate compound amortization schedule generator.
+- **Rollbar Telemetry Terminal**: Real-time on-screen audit log displaying all breadcrumbs, customer context, and Rollbar dispatches.
 
 ---
 
-## 💥 Crash Anomalies & Sentry Errors
+## 🔑 Rollbar Configuration
 
-| Obstacle | Sentry Error Triggered | Telemetry & Details Sent |
+The application is pre-configured with your Rollbar client access token:
+
+```javascript
+var _rollbarConfig = {
+  accessToken: "060195a760694ccd9e4f5dda70b1079d",
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+  replay: {
+    enabled: true
+  },
+  autoInstrument: {
+    network: true,
+    log: true,
+    dom: true,
+    navigation: true,
+    connectivity: true
+  },
+  payload: {
+    environment: "production",
+    person: {
+      id: "cust_wealth_9942",
+      username: "Alexander Wright",
+      email: "a.wright@private-wealth.corp"
+    },
+    custom: {
+      subscription_tier: "Platinum Private Wealth",
+      account_currency: "USD",
+      portfolio_value: "$157,050.00"
+    }
+  }
+};
+```
+
+---
+
+## 🧪 Simulated Financial Incidents in Rollbar
+
+| Financial Workflow | Rollbar Item Type | Rollbar API Method & Details |
 | :--- | :--- | :--- |
-| 🚛 **Freight Truck** | `TypeError` | `Cannot read properties of undefined (reading 'chassisPhysics')`. |
-| 🚧 **Concrete Guardrail** | `ReferenceError` | `guardrailCollisionMesh is not defined`. |
-| 🌀 **Oil Slick Vortex** | `RangeError` | `Maximum call stack size exceeded in calculateSpinDynamics()`. |
-| 🔥 **Nitro Crash (>200 km/h)** | `Fatal Crash Alert` | Extreme G-force disintegration event (`level: fatal`). |
+| 💸 **Wire Transfer to Unknown Entity** | `TypeError` | `Rollbar.error("Wire Transfer Crash: Cannot read properties of undefined", error, { recipient, amount })` |
+| 📊 **Loan Amortization Stress Test** | `RangeError` | `Rollbar.error("Amortization Engine Crash: Maximum call stack size exceeded", error, { principal, rate })` |
+| 🌐 **Sync Forex Gateway Rates** | `Network 500 Outage` | `Rollbar.error("Forex Gateway Failure: Central Bank API returned HTTP 500", error, { endpoint })` |
+| 🔐 **Crypto Cold Vault Withdrawal** | `Unhandled Promise Rejection` | FIDO2 biometric token signature mismatch caught by Rollbar's unhandled rejection handler. |
+| 🚨 **$75,000 High-Value Transfer** | `AML Compliance Warning` | `Rollbar.warning("AML COMPLIANCE ALERT: Transaction exceeded threshold", { amount, riskScore })` |
+| 🚨 **Core Double-Entry Checksum Mismatch** | `Critical System Desync` | `Rollbar.critical("CRITICAL LEDGER ANOMALY: Double-entry checksum mismatch", { severity: "SEV-0" })` |
+| 💬 **Verification Message** | `Info Item` | `Rollbar.info("BuggyBank FinTech portal loaded with Rollbar monitoring active")` |
 
-### 🍞 Telemetry Breadcrumbs
-Before every crash, Sentry records your vehicle's telemetry trail:
-1. `[driving.steer] Player steered to Lane 3 at 145 km/h`
-2. `[engine.nitro] Nitro Engaged! Speed boosting towards 260 km/h`
-3. `[telemetry] Speedometer: 245 km/h | Dist: 820m | Lane: 3`
-4. `[collision] CRASH: Slammed into Freight Truck at 245 km/h!`
+---
+
+## 🕵️ Inspecting Items in the Rollbar Dashboard
+
+Log in to [rollbar.com](https://rollbar.com) and navigate to your project:
+
+1. **Items**: View all errors, warnings, and critical incidents. Click any item to inspect the stack trace, code context, and occurrences count.
+2. **People**: Track which users were affected (e.g. `Alexander Wright` / `cust_wealth_9942`).
+3. **Telemetry**: View the sequence of DOM clicks, console logs, network requests, and page navigations leading up to the error.
+4. **Session Replay (if enabled)**: Watch the session recording of the user's actions before the crash.
 
 ---
 
 ## 🚀 How to Run
 
-1. Open **[index.html](index.html)** in any web browser.
-2. The game is already linked to your Sentry project (`sentry-bug-quest`).
-3. Steer with **A / D** or **Arrow Keys**, accelerate with **W**, and hit **Space** for Nitro.
-4. Crash your car into any truck or barrier, and open your [sentry.io](https://sentry.io) dashboard to see the crash event live!
+1. Open **[index.html](index.html)** directly in your browser (or serve with any local HTTP server: `python -m http.server 8080`).
+2. The Rollbar SDK initializes automatically.
+3. Test transfers or click the **⚡ Rollbar Chaos Lab** tab to trigger intentional error events.
+4. Watch items populate in real-time in your Rollbar dashboard!
 
 ---
 
-## 🎮 Controls
+## 📁 Repository Structure
 
-- **Steer Left**: `A` or `Left Arrow` (or on-screen button)
-- **Steer Right**: `D` or `Right Arrow` (or on-screen button)
-- **Gas / Accelerate**: `W` or `Up Arrow`
-- **Brake**: `S` or `Down Arrow`
-- **Nitro Boost**: `Space` or `Shift`
-- **Respawn After Crash**: `Space` or `Enter` (or click Respawn)
+```
+.
+├── index.html        # FinTech wealth management portal with Rollbar snippet
+├── style.css         # Modern corporate banking dark-theme styles
+├── app.js            # Banking engine, wire transfer pipeline, loan calculator
+├── rollbar-bank.js   # Rollbar SDK manager, customer person tracking, error dispatchers
+├── .gitignore        # Git ignore rules
+└── README.md         # Documentation & Rollbar guide
+```

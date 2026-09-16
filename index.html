@@ -3,222 +3,430 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sentry Crash Racer - Highway Car Crash & Observability Game</title>
+  <title>BuggyBank - Private Wealth Portal & Rollbar Observability Lab</title>
+
+  <!-- Rollbar Snippet - Add BEFORE other scripts -->
+  <script>
+  var _rollbarConfig = {
+    accessToken: "060195a760694ccd9e4f5dda70b1079d",
+    captureUncaught: true,
+    captureUnhandledRejections: true,
+    // Enable Session Replay
+    replay: {
+      enabled: true
+    },
+    autoInstrument: {
+      network: true,
+      log: true,
+      dom: true,
+      navigation: true,
+      connectivity: true
+    },
+    payload: {
+      environment: "production",
+      client: {
+        javascript: {
+          code_version: '1.0.0',
+          source_map_enabled: true
+        }
+      },
+      person: {
+        id: 'cust_wealth_9942',
+        username: 'Alexander Wright',
+        email: 'a.wright@private-wealth.corp'
+      },
+      custom: {
+        subscription_tier: 'Platinum Private Wealth',
+        account_currency: 'USD',
+        portfolio_value: '$157,050.00'
+      }
+    }
+  };
+  // Rollbar Snippet
+  !function(){"use strict";function r(r,o,n){if(o.hasOwnProperty&&o.hasOwnProperty("addEventListener")){for(var e=o.addEventListener;e._rollbarOldAdd&&e.belongsToShim;)e=e._rollbarOldAdd;var t=function(o,n,t){e.call(this,o,r.wrap(n),t)};t._rollbarOldAdd=e,t.belongsToShim=n,o.addEventListener=t;for(var a=o.removeEventListener;a._rollbarOldRemove&&a.belongsToShim;)a=a._rollbarOldRemove;var l=function(r,o,n){a.call(this,r,o&&o._rollbar_wrapped||o,n)};l._rollbarOldRemove=a,l.belongsToShim=n,o.removeEventListener=l}}function o(r,n){this.impl=r(n,this),this.options=n,function(r){for(var o=function(r){return function(){var o=Array.prototype.slice.call(arguments,0);if(this.impl[r])return this.impl[r].apply(this.impl,o)}},n="log,debug,info,warn,warning,error,critical,global,configure,handleUncaughtException,handleAnonymousErrors,handleUnhandledRejection,_createItem,wrap,loadFull,shimId,captureEvent,captureDomContentLoaded,captureLoad".split(","),e=0;e<n.length;e++)r[n[e]]=o(n[e])}(o.prototype)}o.prototype._swapAndProcessMessages=function(r,o){var n,e,t;for(this.impl=r(this.options);n=o.shift();)e=n.method,t=n.args,this[e]&&"function"==typeof this[e]&&("captureDomContentLoaded"===e||"captureLoad"===e?this[e].apply(this,[t[0],n.ts]):this[e].apply(this,t));return this};var n=o;function e(r){return e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(r){return typeof r}:function(r){return r&&"function"==typeof Symbol&&r.constructor===Symbol&&r!==Symbol.prototype?"symbol":typeof r},e(r)}function t(r){return function(){try{return r.apply(this,arguments)}catch(r){try{console.error("[Rollbar]: Internal error",r)}catch(r){}}}}var a=0;function l(r,o){this.options=r,this._rollbarOldOnError=null;var n=a++;this.shimId=function(){return n},"undefined"!=typeof window&&window._rollbarShims&&(window._rollbarShims[n]={handler:o,messages:[]})}var i=function(r,o){return new l(r,o)},s=function(r){return new n(i,r)};function d(r){return t((function(){var o=Array.prototype.slice.call(arguments,0),n={shim:this,method:r,args:o,ts:new Date};window._rollbarShims[this.shimId()].messages.push(n)}))}l.prototype.loadFull=function(r,o,n,e,a){var l=!1,i=o.createElement("script"),s=o.getElementsByTagName("script")[0],d=s.parentNode;i.crossOrigin="",i.src=e.rollbarJsUrl,n||(i.async=!0),i.onload=i.onreadystatechange=t((function(){if(!(l||this.readyState&&"loaded"!==this.readyState&&"complete"!==this.readyState)){i.onload=i.onreadystatechange=null;try{d.removeChild(i)}catch(r){}l=!0,function(){var o;if(void 0===r._rollbarDidLoad){o=new Error("rollbar.js did not load");for(var n,e,t,l,i=0;n=r._rollbarShims[i++];)for(n=n.messages||[];e=n.shift();)for(t=e.args||[],i=0;i<t.length;++i)if("function"==typeof(l=t[i])){l(o);break}}"function"==typeof a&&a(o)}()}})),d.insertBefore(i,s)},l.prototype.wrap=function(r,o,n){try{var e;if(e="function"==typeof o?o:function(){return o||{}},"function"!=typeof r)return r;if(r._isWrap)return r;if(!r._rollbar_wrapped&&(r._rollbar_wrapped=function(){n&&"function"==typeof n&&n.apply(this,arguments);try{return r.apply(this,arguments)}catch(n){var o=n;throw o&&("string"==typeof o&&(o=new String(o)),o._rollbarContext=e()||{},o._rollbarContext._wrappedSource=r.toString(),window._rollbarWrappedError=o),o}},r._rollbar_wrapped._isWrap=!0,r.hasOwnProperty))for(var t in r)r.hasOwnProperty(t)&&(r._rollbar_wrapped[t]=r[t]);return r._rollbar_wrapped}catch(o){return r}};for(var c="log,debug,info,warn,warning,error,critical,global,configure,handleUncaughtException,handleAnonymousErrors,handleUnhandledRejection,captureEvent,captureDomContentLoaded,captureLoad".split(","),p=0;p<c.length;++p)l.prototype[c[p]]=d(c[p]);var u="https://cdn.rollbar.com/rollbarjs/refs/tags/v3.1.0/rollbar.min.js";if(_rollbarConfig=_rollbarConfig||{},!_rollbarConfig.rollbarJsUrl){var f="replay"in _rollbarConfig;_rollbarConfig.rollbarJsUrl=f?u.replace("rollbar.min.js","rollbar.replay.min.js"):u}_rollbarConfig.async=void 0===_rollbarConfig.async||_rollbarConfig.async;var b,h=function(o,n){if(o){var a=n.globalAlias||"Rollbar";if("object"===e(o[a]))return o[a];o._rollbarShims={},o._rollbarWrappedError=null;var l=new s(n);return t((function(){n.captureUncaught&&(l._rollbarOldOnError=o.onerror,function(r,o){if(r){var n;if("function"==typeof o._rollbarOldOnError)n=o._rollbarOldOnError;else if(r.onerror){for(n=r.onerror;n._rollbarOldOnError;)n=n._rollbarOldOnError;o._rollbarOldOnError=n}o.handleAnonymousErrors();var e=function(){var e=Array.prototype.slice.call(arguments,0);!function(r,o,n,e){r._rollbarWrappedError&&(e[4]||(e[4]=r._rollbarWrappedError),e[5]||(e[5]=r._rollbarWrappedError._rollbarContext),r._rollbarWrappedError=null);var t=o.handleUncaughtException.apply(o,e);n&&n.apply(r,e),"anonymous"===t&&(o.anonymousErrorsPending+=1)}(r,o,n,e)};e._rollbarOldOnError=n,r.onerror=e}}(o,l),n.wrapGlobalEventHandlers&&function(o,n,e){if(o){var t,a,l="EventTarget,Window,Node,ApplicationCache,AudioTrackList,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,MessagePort,ModalWindow,Notification,SVGElementInstance,Screen,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload".split(",");for(t=0;t<l.length;++t)o[a=l[t]]&&o[a].prototype&&r(n,o[a].prototype,e)}}(o,l,!0)),n.captureUnhandledRejections&&function(r,o){if(r){"function"==typeof r._rollbarURH&&r._rollbarURH.belongsToShim&&r.removeEventListener("unhandledrejection",r._rollbarURH);var n=function(r){var n,e,t;try{n=r.reason}catch(r){n=void 0}try{e=r.promise}catch(r){e="[unhandledrejection] error getting `promise` from event"}try{t=r.detail,!n&&t&&(n=t.reason,e=t.promise)}catch(r){}n||(n="[unhandledrejection] error getting `reason` from event"),o&&o.handleUnhandledRejection&&o.handleUnhandledRejection(n,e)};n.belongsToShim=!0,r._rollbarURH=n,r.addEventListener("unhandledrejection",n)}}(o,l);var t=n.autoInstrument;return!1!==n.enabled&&(void 0===t||!0===t||function(r){return!("object"!==e(r)||void 0!==r.page&&!r.page)}(t))&&o.addEventListener&&(o.addEventListener("load",l.captureLoad.bind(l)),o.addEventListener("DOMContentLoaded",l.captureDomContentLoaded.bind(l))),o[a]=l,l}))()}}(window,_rollbarConfig),y=(b=_rollbarConfig,function(r){if(!r&&!window._rollbarInitialized){for(var o,n,e=(b=b||{}).globalAlias||"Rollbar",t=window.rollbar,a=function(r){return new t(r)},l=0;o=window._rollbarShims[l++];)n||(n=o.handler),o.handler._swapAndProcessMessages(a,o.messages);window[e]=n,window._rollbarInitialized=!0}});window.rollbar=s,h.loadFull(window,document,!_rollbarConfig.async,_rollbarConfig,y)}();
+  // End Rollbar Snippet
+  </script>
+
   <link rel="stylesheet" href="style.css" />
-  <!-- Sentry Browser SDK -->
-  <script src="https://browser.sentry-cdn.com/8.48.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <!-- Top Telemetry & Sentry Status Bar -->
-  <header>
-    <div class="brand">
-      <span style="font-size: 2rem;">🏎️💥</span>
-      <div>
-        <h1>Sentry Crash Racer</h1>
-        <p style="font-size: 0.78rem; color: var(--text-muted);">Highway High-Speed Crash & Telemetry Lab</p>
+  <!-- Top Navigation Header -->
+  <header class="bank-header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">🏛️</span>
+        <div>
+          <h1>BuggyBank</h1>
+          <span class="sub-brand">Private Wealth Management</span>
+        </div>
       </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-view="overview">Overview</button>
+        <button class="nav-btn" data-view="exchange">Forex Exchange</button>
+        <button class="nav-btn" data-view="loans">Loan Calculator</button>
+        <button class="nav-btn highlight" data-view="simulator">⚡ Rollbar Chaos Lab</button>
+      </nav>
     </div>
 
-    <div class="sentry-badge-bar">
-      <div class="status-badge connected" id="sentry-status">
-        <span class="status-dot"></span>
-        <span id="sentry-status-text">🟢 Sentry Armed & Connected</span>
+    <div class="header-right">
+      <div class="sentry-status-badge">
+        <span class="pulse-dot"></span>
+        <span>🟢 Rollbar Connected (Production)</span>
       </div>
-      <div class="dsn-preview">
-        <span>Project: <b>sentry-bug-quest</b></span>
+      <div class="user-profile">
+        <div class="avatar">AW</div>
+        <div class="user-meta">
+          <span class="user-name">Alexander Wright</span>
+          <span class="user-tier">Platinum Tier • US-FINCEN</span>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Arcade Layout -->
-  <main class="game-container">
-    
-    <!-- Left: Highway Driving Game Canvas -->
-    <div class="game-viewport">
-      
-      <!-- Top HUD on Canvas -->
-      <div class="hud-bar">
-        <div class="hud-item">
-          <span class="hud-label">SPEED</span>
-          <div class="speedometer">
-            <span id="hud-speed" class="speed-val">120</span>
-            <span class="speed-unit">KM/H</span>
-          </div>
-        </div>
+  <!-- Main Container -->
+  <main class="bank-container">
 
-        <div class="gauge-wrapper">
-          <div class="gauge-bar">
-            <div id="speed-gauge-fill" class="gauge-fill" style="width: 45%;"></div>
-          </div>
-          <span style="font-size: 0.65rem; color: #8395a7;">TURBO GAUGE</span>
-        </div>
-
-        <div class="hud-item">
-          <span class="hud-label">DISTANCE</span>
-          <span id="hud-dist" class="hud-val">0m</span>
-        </div>
-
-        <div class="hud-item">
-          <span class="hud-label">SCORE</span>
-          <span id="hud-score" class="hud-val">0</span>
-        </div>
+    <!-- Top Portfolio Metric Cards -->
+    <section class="portfolio-grid">
+      <div class="card metric-card total-card">
+        <span class="metric-label">TOTAL NET WORTH</span>
+        <div id="stat-total-networth" class="metric-value">$157,050.00</div>
+        <span class="metric-change positive">↑ +$4,467.75 (+2.9%) this month</span>
       </div>
 
-      <!-- Canvas Highway (600x540) -->
-      <div class="canvas-wrapper">
-        <canvas id="gameCanvas" width="600" height="540"></canvas>
-
-        <!-- Crash Report Overlay (Appears on Collision) -->
-        <div id="crash-overlay" class="crash-modal" style="display: none;">
-          <div class="crash-box">
-            <div class="crash-header">
-              <span style="font-size: 2.2rem;">💥</span>
-              <h2 id="crash-title">FATAL CRASH DETECTED!</h2>
-            </div>
-            
-            <div class="crash-stats-grid">
-              <div class="crash-stat">
-                <span class="stat-label">IMPACT SPEED</span>
-                <span id="crash-speed" class="stat-num">210 km/h</span>
-              </div>
-              <div class="crash-stat">
-                <span class="stat-label">ERROR GENERATED</span>
-                <span id="crash-error-name" class="stat-num error-tag">TypeError</span>
-              </div>
-            </div>
-
-            <div class="sentry-dispatch-alert">
-              <span class="pulse-dot"></span>
-              <span id="crash-sentry-status">⚡ Crash Telemetry & Error Sent to Sentry!</span>
-            </div>
-
-            <p style="font-size: 0.78rem; color: #a4b0be; margin-bottom: 12px;">
-              Check your <b>Sentry.io Issues Dashboard</b> to inspect the crash stack trace, speed telemetry, and lane breadcrumbs!
-            </p>
-
-            <div class="crash-actions">
-              <button id="btn-respawn" class="btn-respawn">
-                🔄 RESPAWN CAR (SPACE / ENTER)
-              </button>
-              <button id="btn-crash-feedback" class="btn-feedback">
-                💬 Sentry User Feedback Dialog
-              </button>
-            </div>
-          </div>
+      <div class="card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">CHECKING ACCOUNT</span>
+          <span class="acc-num">**** 8841</span>
         </div>
+        <div id="stat-checking" class="metric-value">$24,850.00</div>
+        <span class="metric-desc">Available for immediate wire transfer</span>
       </div>
 
-      <!-- Controls Guidance & Touch Buttons -->
-      <div class="controls-panel">
-        <div class="key-hints">
-          <span><b>A / ◀</b> Steer Left</span>
-          <span><b>D / ▶</b> Steer Right</span>
-          <span><b>W / ▲</b> Accelerate</span>
-          <span><b>S / ▼</b> Brake</span>
-          <span><b>SPACE</b> 🔥 NITRO BOOST</span>
+      <div class="card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">HIGH-YIELD SAVINGS</span>
+          <span class="acc-num">**** 9021</span>
         </div>
-
-        <!-- Touch Controls -->
-        <div class="touch-controls">
-          <button id="btn-steer-left" class="btn-touch">◀ STEER LEFT</button>
-          <button id="btn-brake" class="btn-touch">🛑 BRAKE</button>
-          <button id="btn-gas" class="btn-touch">⚡ GAS</button>
-          <button id="btn-nitro" class="btn-touch btn-touch-nitro">🔥 NITRO</button>
-          <button id="btn-steer-right" class="btn-touch">STEER RIGHT ▶</button>
-        </div>
+        <div id="stat-savings" class="metric-value">$118,000.00</div>
+        <span class="metric-desc">4.75% APY compounding daily</span>
       </div>
 
-    </div>
+      <div class="card metric-card">
+        <div class="metric-header">
+          <span class="metric-label">CRYPTO ASSETS</span>
+          <span class="acc-num">Cold Storage</span>
+        </div>
+        <div id="stat-crypto" class="metric-value">$14,200.00</div>
+        <span class="metric-desc">Hardware security token enabled</span>
+      </div>
+    </section>
 
-    <!-- Right: Telemetry & Manual Trigger Panel -->
-    <aside class="side-panel">
-      <div class="panel-section">
-        <h3>🎯 Instant Crash Anomaly Triggers</h3>
-        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
-          Crash your car naturally on the highway, or click below to simulate instant crashes:
-        </p>
+    <!-- VIEW 1: Overview & Wire Transfer -->
+    <section id="view-overview" class="view-section">
+      <div class="dashboard-grid">
         
-        <div class="crash-buttons-grid">
-          <button id="trigger-truck" class="btn-anom btn-red">
-            <span>🚛 Freight Truck</span>
-            <small>TypeError (chassis null)</small>
-          </button>
-          
-          <button id="trigger-barrier" class="btn-anom btn-purple">
-            <span>🚧 Guardrail Smash</span>
-            <small>ReferenceError (no mesh)</small>
-          </button>
-          
-          <button id="trigger-vortex" class="btn-anom btn-orange">
-            <span>🌀 Oil Slick Spin</span>
-            <small>RangeError (Stack Overflow)</small>
-          </button>
-          
-          <button id="trigger-nitro-crash" class="btn-anom btn-cyan">
-            <span>🔥 270 km/h Nitro Crash</span>
-            <small>Fatal Disintegration Event</small>
-          </button>
+        <!-- Left: Transactions History -->
+        <div class="card tx-card">
+          <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <span class="card-sub">Real-time ledger entries</span>
+          </div>
+          <div id="transaction-list" class="tx-list">
+            <!-- Dynamic rows appear here -->
+          </div>
         </div>
-      </div>
 
-      <!-- Live Terminal Log -->
-      <div class="panel-section" style="flex: 1; display: flex; flex-direction: column;">
-        <div class="terminal-bar">
-          <span>📟 SENTRY TELEMETRY LOG</span>
-          <button id="btn-clear-logs" class="btn-xs">Clear</button>
+        <!-- Right: Interactive Wire Transfer Form -->
+        <div class="card transfer-card">
+          <div class="card-header">
+            <h3>💸 Send SWIFT Wire Transfer</h3>
+            <span class="card-sub">Domestic & International clearance</span>
+          </div>
+
+          <form id="wire-transfer-form" class="transfer-form">
+            <div class="form-group">
+              <label for="transfer-recipient">Select Recipient Entity</label>
+              <select id="transfer-recipient" class="form-control">
+                <option value="sarah">Sarah Jenkins (Verified Personal - Bank of America)</option>
+                <option value="google">Google Cloud EMEA (Verified Enterprise - Citibank)</option>
+                <option value="offshore_bug" style="color: #ff4757; font-weight: bold;">⚠️ Unknown Offshore Entity (Triggers TypeError Crash!)</option>
+                <option value="aml_shell" style="color: #ffd32a; font-weight: bold;">⚠️ High-Risk Shell Corp (Triggers AML Compliance Alert!)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="transfer-amount">Transfer Amount ($ USD)</label>
+              <input type="number" id="transfer-amount" class="form-control" value="2500" min="1" step="any" required />
+            </div>
+
+            <div class="form-group">
+              <label for="transfer-memo">Reference Memo</label>
+              <input type="text" id="transfer-memo" class="form-control" value="Invoice settlement & consulting fees" />
+            </div>
+
+            <div id="transfer-status-box" class="status-box empty">
+              <span>Ready to process transfer.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              🔒 Authorize & Execute Wire Transfer
+            </button>
+          </form>
         </div>
-        <div id="terminal-logs" class="terminal-logs">
-          <!-- Real-time logs appear here -->
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: Currency Exchange (Forex API) -->
+    <section id="view-exchange" class="view-section" style="display: none;">
+      <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header">
+          <h3>💱 Central Bank Real-Time Forex Exchange</h3>
+          <span class="card-sub">Institutional exchange rates with automated settlement</span>
+        </div>
+
+        <table class="forex-table">
+          <thead>
+            <tr>
+              <th>Currency Pair</th>
+              <th>Live Rate</th>
+              <th>24h Change</th>
+              <th>Liquidity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>USD / EUR</b></td>
+              <td>0.9241 EUR</td>
+              <td style="color: #2ecc71;">+0.14%</td>
+              <td>Deep ($5.2B)</td>
+            </tr>
+            <tr>
+              <td><b>USD / GBP</b></td>
+              <td>0.7812 GBP</td>
+              <td style="color: #2ecc71;">+0.08%</td>
+              <td>Deep ($3.1B)</td>
+            </tr>
+            <tr>
+              <td><b>USD / JPY</b></td>
+              <td>154.28 JPY</td>
+              <td style="color: #ff4757;">-0.22%</td>
+              <td>Deep ($4.8B)</td>
+            </tr>
+            <tr>
+              <td><b>USD / BTC</b></td>
+              <td>0.000015 BTC</td>
+              <td style="color: #2ecc71;">+1.45%</td>
+              <td>Moderate ($850M)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <div id="forex-result-box" style="padding: 12px; background: var(--bg-inner); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.85rem;">
+            Rates last refreshed 2 minutes ago. Click below to test API gateway sync.
+          </div>
+          <button id="btn-sync-forex" class="btn btn-secondary">
+            🌐 Sync Live Rates from Federal Forex Gateway (Triggers HTTP 500 Outage)
+          </button>
         </div>
       </div>
-    </aside>
+    </section>
+
+    <!-- VIEW 3: Mortgage & Loan Amortization Calculator -->
+    <section id="view-loans" class="view-section" style="display: none;">
+      <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header">
+          <h3>📊 Commercial Loan & Amortization Engine</h3>
+          <span class="card-sub">Compound interest modeling and monthly payment schedules</span>
+        </div>
+
+        <div class="loan-grid">
+          <div class="form-group">
+            <label for="loan-amount">Loan Principal ($ USD)</label>
+            <input type="number" id="loan-amount" class="form-control" value="350000" />
+          </div>
+          <div class="form-group">
+            <label for="loan-rate">Annual Interest Rate (%)</label>
+            <input type="number" id="loan-rate" class="form-control" value="6.25" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label for="loan-term">Term (Years)</label>
+            <select id="loan-term" class="form-control">
+              <option value="15">15 Years (Fixed)</option>
+              <option value="30" selected>30 Years (Fixed)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="loan-result-box" style="padding: 16px; background: var(--bg-inner); border: 1px solid var(--border-color); border-radius: 8px; margin: 16px 0; text-align: center;">
+          <span style="color: var(--text-muted);">Adjust parameters and click compute.</span>
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button id="btn-calc-loan" class="btn btn-primary" style="flex: 1;">
+            Compute Standard Schedule
+          </button>
+          <button id="btn-loan-glitch" class="btn btn-danger" style="flex: 1;">
+            💥 Deep Recursive Stress-Test (Triggers RangeError Stack Overflow)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: Rollbar Chaos Lab Simulator -->
+    <section id="view-simulator" class="view-section" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3>⚡ Rollbar Financial Incident Chaos Testing Simulator</h3>
+          <span class="card-sub">Simulate production banking failures, security alerts, and live Rollbar tracking</span>
+        </div>
+
+        <div class="chaos-grid">
+          
+          <!-- Card 1: TypeError -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>💸 Wire Transfer Failure</span>
+              <span class="badge badge-red">TypeError</span>
+            </div>
+            <p>Accesses undefined SWIFT BIC code on recipient entity. Captured automatically by Rollbar.</p>
+            <button id="btn-trigger-type" class="btn btn-danger btn-sm">Trigger TypeError</button>
+          </div>
+
+          <!-- Card 2: RangeError -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>📊 Amortization Overflow</span>
+              <span class="badge badge-orange">RangeError</span>
+            </div>
+            <p>Infinite recursive compound calculation: <code>Maximum call stack size exceeded</code>.</p>
+            <button id="btn-trigger-range" class="btn btn-orange btn-sm">Trigger Stack Overflow</button>
+          </div>
+
+          <!-- Card 3: Network 500 -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>🌐 Central Forex Outage</span>
+              <span class="badge badge-blue">Network 500</span>
+            </div>
+            <p>Sends HTTP GET to Federal Forex Gateway simulating 500 Internal Server Error.</p>
+            <button id="btn-trigger-network" class="btn btn-blue btn-sm">Trigger HTTP 500</button>
+          </div>
+
+          <!-- Card 4: Unhandled Promise -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>🔐 Crypto Hardware Rejection</span>
+              <span class="badge badge-purple">Promise Rejection</span>
+            </div>
+            <p>FIDO2 Biometric token signature mismatch caught by Rollbar's unhandled rejection handler.</p>
+            <button id="btn-trigger-promise" class="btn btn-purple btn-sm">Trigger Promise Rejection</button>
+          </div>
+
+          <!-- Card 5: AML Warning -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>🚨 AML Compliance Flag</span>
+              <span class="badge badge-yellow">Rollbar Warning</span>
+            </div>
+            <p>Flags high-value $75,000 transaction using <code>Rollbar.warning()</code>.</p>
+            <button id="btn-trigger-aml" class="btn btn-warning btn-sm">Dispatch AML Warning</button>
+          </div>
+
+          <!-- Card 6: Fatal Core Desync -->
+          <div class="chaos-card">
+            <div class="chaos-head">
+              <span>🚨 Core Ledger Desync</span>
+              <span class="badge badge-red">Rollbar Critical</span>
+            </div>
+            <p>Dispatches SEV-0 critical alert using <code>Rollbar.critical()</code>: checksum mismatch on customer vault.</p>
+            <button id="btn-trigger-fatal" class="btn btn-danger btn-sm">Dispatch Critical Event</button>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <b>Test Rollbar Verification Message:</b>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Send an immediate informational item to your Rollbar Items dashboard.</p>
+          </div>
+          <button id="btn-test-rollbar" class="btn btn-primary">
+            💬 Send Rollbar.info() Verification Message
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom: Live Rollbar Telemetry Terminal -->
+    <footer class="card terminal-card">
+      <div class="terminal-header">
+        <div class="terminal-title">
+          <span>📟 ROLLBAR BANKING OBSERVABILITY & TELEMETRY STREAM</span>
+        </div>
+        <div class="terminal-meta">
+          <span>Token: <b>060195a7...</b> | Env: <b>production</b></span>
+          <button id="btn-clear-terminal" class="btn-clear">Clear Logs</button>
+        </div>
+      </div>
+      <div id="terminal-logs" class="terminal-body">
+        <!-- Live telemetry logs appear here -->
+      </div>
+    </footer>
 
   </main>
 
-  <script src="sentry-manager.js"></script>
-  <script src="game.js"></script>
+  <!-- Scripts -->
+  <script src="rollbar-bank.js"></script>
+  <script src="app.js"></script>
   <script>
-    // Terminal Log Hookup
-    const terminal = document.getElementById('terminal-logs');
-    if (window.sentryManager) {
-      window.sentryManager.onLog((entry) => {
-        if (!terminal) return;
-        const row = document.createElement('div');
-        row.className = 'log-line';
-        row.innerHTML = `
-          <span class="log-time">${entry.timestamp}</span>
-          <span class="log-tag ${entry.type}">${entry.type}</span>
-          <span class="log-msg"><b>${entry.title}</b> ${entry.details ? `— <i>${entry.details}</i>` : ''}</span>
+    // Terminal Log Hook
+    const terminalEl = document.getElementById('terminal-logs');
+    if (window.rollbarBank) {
+      window.rollbarBank.onLog((entry) => {
+        if (!terminalEl) return;
+        const line = document.createElement('div');
+        line.className = 'term-line';
+        line.innerHTML = `
+          <span class="term-time">${entry.timestamp}</span>
+          <span class="term-badge ${entry.type}">${entry.type}</span>
+          <span class="term-content"><b>${entry.title}</b> ${entry.details ? `— <i>${entry.details}</i>` : ''}</span>
         `;
-        terminal.appendChild(row);
-        terminal.scrollTop = terminal.scrollHeight;
+        terminalEl.appendChild(line);
+        terminalEl.scrollTop = terminalEl.scrollHeight;
       });
     }
 
-    document.getElementById('btn-clear-logs').addEventListener('click', () => {
-      if (terminal) terminal.innerHTML = '';
+    document.getElementById('btn-clear-terminal').addEventListener('click', () => {
+      if (terminalEl) terminalEl.innerHTML = '';
     });
 
-    // Side buttons trigger manual crashes
-    document.getElementById('trigger-truck').addEventListener('click', () => {
-      if (window.sentryManager) window.sentryManager.reportTruckCrash(140, 2);
-      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Null Freight Truck', error: 'TypeError' });
+    // Chaos Lab Trigger Buttons
+    document.getElementById('btn-trigger-type').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportTransferTypeError('Unknown Offshore Entity', 12500);
     });
 
-    document.getElementById('trigger-barrier').addEventListener('click', () => {
-      if (window.sentryManager) window.sentryManager.reportBarrierCrash(165, 1);
-      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Concrete Guardrail', error: 'ReferenceError' });
+    document.getElementById('btn-trigger-range').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportAmortizationRangeError(500000, 7.5, 30);
     });
 
-    document.getElementById('trigger-vortex').addEventListener('click', () => {
-      if (window.sentryManager) window.sentryManager.reportVortexCrash(190, 3);
-      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Oil Slick Vortex', error: 'RangeError' });
+    document.getElementById('btn-trigger-network').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportForexSyncError('USD/EUR');
     });
 
-    document.getElementById('trigger-nitro-crash').addEventListener('click', () => {
-      if (window.sentryManager) window.sentryManager.reportNitroCrash(265, 4);
-      if (window.crashRacer) window.crashRacer.triggerCrash({ name: 'Nitro Supersonic Crash', error: 'FatalCrash' });
+    document.getElementById('btn-trigger-promise').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportCryptoRejection();
+    });
+
+    document.getElementById('btn-trigger-aml').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportAmlAlert(75000, 'Structured wire transfer pattern flagged by FinCEN compliance engine');
+    });
+
+    document.getElementById('btn-trigger-fatal').addEventListener('click', () => {
+      if (window.rollbarBank) window.rollbarBank.reportCoreFatalSync('Account vault 9942 hash checksum mismatch: expected 0xA4F, received 0x000');
     });
   </script>
 </body>
